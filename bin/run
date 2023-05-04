@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+
+import sys
+sys.path.append('.')
+
+import numpy as np
+
+from cgp.gene import Gene, GeneBuilder, GeneBuilderConfig
+
+config = GeneBuilderConfig(3, 20, 2)
+builder = GeneBuilder(config)
+
+batch = [np.random.rand(3) for x in range(10)]
+batch = np.asarray(batch)
+print(batch)
+
+g = builder.makeGene()
+print(g)
+#output = g.evaluate([-0.7, 0.2, 0.5])
+output = g.evaluateBatch(batch)
+print(output)
