@@ -8,17 +8,49 @@ import numpy as np
 from cgp.gene import Gene, GeneBuilder, GeneBuilderConfig
 from cgp.gene import GeneMutator, GeneMutatorConfig
 
-builder_config = GeneBuilderConfig(3, 20, 2)
+builder_config = GeneBuilderConfig(3, 200, 1)
 builder = GeneBuilder(builder_config)
 
-
-g = builder.makeGene()
-print(g)
-
-print("Mutating")
-mutator_config = GeneMutatorConfig(1.0)
+mutator_config = GeneMutatorConfig(0.08)
 mutator = GeneMutator(mutator_config)
 
-g2 = mutator.mutateGene(g)
-print(g)
-print(g2)
+def measure_fitness(actual, expected):
+    return np.sum(np.abs(actual - expected))
+
+def problem_output(input):
+    return (np.power(input[:,0], 2) - input[:,1])/2.0
+
+parent = builder.makeGene()
+offspring = [builder.makeGene() for x in range(20)]
+
+validation_input = [np.random.rand(3) for x in range(100)]
+validation_input = np.asarray(validation_input)
+validation_output = problem_output(validation_input)
+
+
+for generation in range(200):
+    # print("GENERATION: {}".format(generation))
+    batch = [np.random.rand(3) for x in range(100)]
+    batch = np.asarray(batch)
+
+    parent_output = parent.evaluate(batch)
+    offspring_output = [gene.evaluate(batch) for gene in offspring]
+
+    expected_output = problem_output(batch)
+
+    parent_fitness = measure_fitness(parent_output, expected_output)
+
+    for child_idx in range(len(offspring)):
+        child_fitness = measure_fitness(offspring_output[child_idx], expected_output)
+        if child_fitness < parent_fitness:
+            # print("\tChild {} is replacing parent".format(child_idx))
+            parent_fitness = child_fitness
+            parent = offspring[child_idx]
+    # print("\tBest fitness: {}".format(parent_fitness))
+
+    validation_evaluated = parent.evaluate(validation_input)
+    validation_fitness = measure_fitness(validation_evaluated, validation_output)
+    print("\tValidation fitness: {}".format(validation_fitness))
+
+    # We have the best parent:
+    offspring = [mutator.mutateGene(parent) for x in range(20)]
