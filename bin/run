@@ -42,7 +42,7 @@ for generation in range(200):
 
     for child_idx in range(len(offspring)):
         child_fitness = measure_fitness(offspring_output[child_idx], expected_output)
-        if child_fitness < parent_fitness:
+        if child_fitness <= parent_fitness:
             # print("\tChild {} is replacing parent".format(child_idx))
             parent_fitness = child_fitness
             parent = offspring[child_idx]
@@ -51,6 +51,7 @@ for generation in range(200):
     validation_evaluated = parent.evaluate(validation_input)
     validation_fitness = measure_fitness(validation_evaluated, validation_output)
     print("\tValidation fitness: {}".format(validation_fitness))
+    print("\t{}".format(parent.toHumanFormula()))
 
     # We have the best parent:
     offspring = [mutator.mutateGene(parent) for x in range(20)]

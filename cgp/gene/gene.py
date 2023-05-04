@@ -60,3 +60,48 @@ class Gene:
         elif op == 13:
             return in1 * in2
         raise ValueError("Unknown operator: {}".format(op))
+    
+    def nodeToHumanFormula(self, nodeIdx):
+        if nodeIdx < self.num_inputs:
+            return "in{}".format(nodeIdx)
+        else:
+            nodeIdx = nodeIdx - self.num_inputs
+            middleNode = self.middlenodes[nodeIdx]
+            in1idx, in2idx, in3idx, op = middleNode
+            in1 = self.nodeToHumanFormula(in1idx)
+            in2 = self.nodeToHumanFormula(in2idx)
+            in3 = self.nodeToHumanFormula(in3idx)
+            if op == 0:
+                return "|{}|".format(in1)
+            elif op == 1:
+                return "sqrt(|{}|)".format(in1)
+            elif op == 2:
+                return "{}^2".format(in1)
+            elif op == 3:
+                return "{}^3".format(in1)
+            elif op == 4:
+                return "exp({})".format(in1)
+            elif op == 5:
+                return "sin({})".format(in1)
+            elif op == 6:
+                return "cos({})".format(in1)
+            elif op == 7:
+                return "tanh({})".format(in1)
+            elif op == 8:
+                return "-{}".format(in1)
+            elif op == 9:
+                return "step({})".format(in1)
+            elif op == 10:
+                return "hyp({}, {})".format(in1, in2)
+            elif op == 11:
+                return "({} + {})/2.0".format(in1, in2)
+            elif op == 12:
+                return "({} - {})/2.0".format(in1, in2)
+            elif op == 13:
+                return "{} * {}".format(in1, in2)
+            else:
+                return "unknown{}".format(op)
+
+    
+    def toHumanFormula(self):
+        return [self.nodeToHumanFormula(idx) for idx in self.output_idxes]
