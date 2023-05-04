@@ -11,16 +11,24 @@ class GeneMutator:
         self.config = config
 
     def mutateGene(self, g):
-        g = Gene()
-        g.num_inputs = self.config.num_inputs
-        g.middlenodes = [self.makeMiddleNode(x) for x in range(self.config.num_middlenodes)]
-        g.output_idxes = [random.randrange(self.config.num_inputs + self.config.num_middlenodes) for x in range(self.config.num_outputs)]
-        return g
-    
-    def makeMiddleNode(self, middleIdx):
-        maxIdx = self.config.num_inputs + middleIdx
-        in1idx = random.randrange(maxIdx)
-        in2idx = random.randrange(maxIdx)
-        in3idx = random.randrange(maxIdx)
-        op = random.randrange(Gene.NUM_OPS)
-        return (in1idx, in2idx, in3idx, op)
+        num_inputs = g.num_inputs
+        middlenodes = []
+        for idx, middlenode in enumerate(g.middlenodes):
+            maxIdx = num_inputs + idx
+            in1idx, in2idx, in3idx, op = middlenode
+            if random.random() < self.config.mutation_rate:
+                in1idx = random.randrange(maxIdx)
+            if random.random() < self.config.mutation_rate:
+                in2idx = random.randrange(maxIdx)
+            if random.random() < self.config.mutation_rate:
+                in3idx = random.randrange(maxIdx)
+            if random.random() < self.config.mutation_rate:
+                op = random.randrange(Gene.NUM_OPS)
+            middlenodes.append((in1idx, in2idx, in3idx, op))
+        output_idxes = []
+        for idx in g.output_idxes:
+            if random.random() < self.config.mutation_rate:
+                output_idxes.append(random.randrange(num_inputs + len(middlenodes)))
+            else:
+                output_idxes.append(idx)
+        return Gene(num_inputs, middlenodes, output_idxes)

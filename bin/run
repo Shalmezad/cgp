@@ -6,16 +6,19 @@ sys.path.append('.')
 import numpy as np
 
 from cgp.gene import Gene, GeneBuilder, GeneBuilderConfig
+from cgp.gene import GeneMutator, GeneMutatorConfig
 
-config = GeneBuilderConfig(3, 20, 2)
-builder = GeneBuilder(config)
+builder_config = GeneBuilderConfig(3, 20, 2)
+builder = GeneBuilder(builder_config)
 
-batch = [np.random.rand(3) for x in range(10)]
-batch = np.asarray(batch)
-print(batch)
 
 g = builder.makeGene()
 print(g)
-#output = g.evaluate([-0.7, 0.2, 0.5])
-output = g.evaluate(batch)
-print(output)
+
+print("Mutating")
+mutator_config = GeneMutatorConfig(1.0)
+mutator = GeneMutator(mutator_config)
+
+g2 = mutator.mutateGene(g)
+print(g)
+print(g2)
