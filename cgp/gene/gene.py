@@ -12,25 +12,25 @@ class Gene:
     middlenodes: tuple[int]
     output_idxes: list[int]
 
-    def evaluateBatch(self, input: npt.ArrayLike):
-        result = [self.evaluateNodeBatch(x, input) for x in self.output_idxes]
+    def evaluate(self, input: npt.ArrayLike):
+        result = [self.evaluateNode(x, input) for x in self.output_idxes]
         result = np.asarray(result)
         result = np.swapaxes(result, 0,1)
         return result
     
-    def evaluateNodeBatch(self, nodeIdx, input):
+    def evaluateNode(self, nodeIdx, input):
         if nodeIdx < self.num_inputs:
             return input[:,nodeIdx]
         else:
             nodeIdx = nodeIdx - self.num_inputs
             middleNode = self.middlenodes[nodeIdx]
-            return self.evaluateMiddleNodeBatch(middleNode, input)
+            return self.evaluateMiddleNode(middleNode, input)
         
-    def evaluateMiddleNodeBatch(self, middleNode, input):
+    def evaluateMiddleNode(self, middleNode, input):
         in1idx, in2idx, in3idx, op = middleNode
-        in1 = self.evaluateNodeBatch(in1idx, input)
-        in2 = self.evaluateNodeBatch(in2idx, input)
-        in3 = self.evaluateNodeBatch(in3idx, input)
+        in1 = self.evaluateNode(in1idx, input)
+        in2 = self.evaluateNode(in2idx, input)
+        in3 = self.evaluateNode(in3idx, input)
         result = 0.0
         if op == 0:
             return np.absolute(in1)
