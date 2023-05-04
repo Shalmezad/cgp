@@ -1,21 +1,18 @@
+from dataclasses import dataclass
 import math
 
 import numpy as np
 import numpy.typing as npt
 
-
+@dataclass(frozen=True)
 class Gene:
     NUM_OPS = 4
 
-    def __init__(self) -> None:
-        self.num_inputs = 0
-        self.middlenodes = []
-        self.output_idxes = []
-        pass
+    num_inputs: int
+    middlenodes: tuple[int]
+    output_idxes: list[int]
 
     def evaluateBatch(self, input: npt.ArrayLike):
-        # TODO: Come up with better mechanism rather than running on each sample:
-        # return np.apply_along_axis(self.evaluateSingle, 1, input)
         result = [self.evaluateNodeBatch(x, input) for x in self.output_idxes]
         result = np.asarray(result)
         result = np.swapaxes(result, 0,1)
@@ -44,6 +41,3 @@ class Gene:
         elif op == 3:
             return np.power(in1, 3)
         return result
-    
-    def __str__(self) -> str:
-        return "<cgp.gene.gene.Gene middleNodes: {} outputIdx: {}".format(self.middlenodes, self.output_idxes)

@@ -13,11 +13,10 @@ class GeneBuilder:
         self.config = config
 
     def makeGene(self):
-        g = Gene()
-        g.num_inputs = self.config.num_inputs
-        g.middlenodes = [self.makeMiddleNode(x) for x in range(self.config.num_middlenodes)]
-        g.output_idxes = [random.randrange(self.config.num_inputs + self.config.num_middlenodes) for x in range(self.config.num_outputs)]
-        return g
+        num_inputs = self.config.num_inputs
+        middlenodes = [self.makeMiddleNode(x) for x in range(self.config.num_middlenodes)]
+        output_idxes = [random.randrange(self.config.num_inputs + self.config.num_middlenodes) for x in range(self.config.num_outputs)]
+        return Gene(num_inputs, middlenodes, output_idxes)
     
     def makeMiddleNode(self, middleIdx):
         maxIdx = self.config.num_inputs + middleIdx
