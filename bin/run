@@ -18,7 +18,8 @@ mutator_config = GeneMutatorConfig(0.08)
 mutator = GeneMutator(mutator_config)
 
 def measure_fitness(actual, expected):
-    return np.sum(np.abs(actual - expected))
+    # return np.sum(np.abs(actual - expected))
+    return (np.square(actual - expected)).mean()
 
 def problem_output(input):
     return (np.power(input[:,0], 2) - input[:,1])/2.0
@@ -62,6 +63,7 @@ for generation in range(5000):
             fitness, gene
         ))
 
+    # Fitness is error, so lower fitness is better
     measured_genes.sort(key=lambda x: x.fitness)
 
     best_mu = measured_genes[:mu]
