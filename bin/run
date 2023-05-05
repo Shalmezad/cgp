@@ -3,6 +3,9 @@
 import sys
 sys.path.append('.')
 
+from dataclasses import dataclass
+import random
+
 import numpy as np
 
 from cgp.gene import Gene, GeneBuilder, GeneBuilderConfig
@@ -19,36 +22,52 @@ def measure_fitness(actual, expected):
 
 def problem_output(input):
     return (np.power(input[:,0], 2) - input[:,1])/2.0
+    # return np.sin(input[:,0]) * np.cos(-1 * input[:,1])
 
-parent = builder.makeGene()
-offspring = [builder.makeGene() for x in range(20)]
+@dataclass
+class MeasuredGene:
+    fitness: float
+    gene: Gene
+
+mu = 1
+lamb = 4
+
+pool = [builder.makeGene() for x in range(mu)]
 
 validation_input = [np.random.rand(3) for x in range(100)]
 validation_input = np.asarray(validation_input)
 validation_output = problem_output(validation_input)
 
 
-for generation in range(200):
-    # print("GENERATION: {}".format(generation))
+for generation in range(5000):
+    print("GENERATION: {}".format(generation))
     batch = [np.random.rand(3) for x in range(100)]
     batch = np.asarray(batch)
-
-    parent_output = parent.evaluate(batch)
-    offspring_output = [gene.evaluate(batch) for gene in offspring]
-
     expected_output = problem_output(batch)
 
-    parent_fitness = measure_fitness(parent_output, expected_output)
+    # Build our full pool:
+    children = []
+    for x in range(lamb):
+        parent = random.choice(pool)
+        child = mutator.mutateGene(parent)
+        children.append(child)
 
-    for child_idx in range(len(offspring)):
-        child_fitness = measure_fitness(offspring_output[child_idx], expected_output)
-        if child_fitness <= parent_fitness:
-            # print("\tChild {} is replacing parent".format(child_idx))
-            parent_fitness = child_fitness
-            parent = offspring[child_idx]
-    # print("\tBest fitness: {}".format(parent_fitness))
+    pool.extend(children)
+    
+    measured_genes = []
+    for gene in pool:
+        gene_output = gene.evaluate(batch)
+        fitness = measure_fitness(gene_output, expected_output)
+        measured_genes.append(MeasuredGene(
+            fitness, gene
+        ))
 
-    validation_evaluated = parent.evaluate(validation_input)
+    measured_genes.sort(key=lambda x: x.fitness)
+
+    best_mu = measured_genes[:mu]
+    pool = [x.gene for x in best_mu]
+
+    validation_evaluated = pool[0].evaluate(validation_input)
     validation_fitness = measure_fitness(validation_evaluated, validation_output)
     print("\tValidation fitness: {}".format(validation_fitness))
     print("\t{}".format(parent.toHumanFormula()))

@@ -6,7 +6,7 @@ import numpy.typing as npt
 
 @dataclass(frozen=True)
 class Gene:
-    NUM_OPS = 14
+    NUM_OPS = 16
 
     num_inputs: int
     middlenodes: tuple[int]
@@ -59,6 +59,10 @@ class Gene:
             return (in1 - in2) / 2.0
         elif op == 13:
             return in1 * in2
+        elif op == 14:
+            return np.maximum(in1, in2)
+        elif op == 15:
+            return np.minimum(in1, in2)
         raise ValueError("Unknown operator: {}".format(op))
     
     def nodeToHumanFormula(self, nodeIdx):
@@ -99,6 +103,10 @@ class Gene:
                 return "({} - {})/2.0".format(in1, in2)
             elif op == 13:
                 return "{} * {}".format(in1, in2)
+            elif op == 14:
+                return "max({},{})".format(in1, in2)
+            elif op == 15:
+                return "max({},{})".format(in1, in2)
             else:
                 return "unknown{}".format(op)
 
