@@ -30,8 +30,8 @@ class MeasuredGene:
     fitness: float
     gene: Gene
 
-mu = 1
-lamb = 4
+mu = 50
+lamb = 100
 
 pool = [builder.makeGene() for x in range(mu)]
 
