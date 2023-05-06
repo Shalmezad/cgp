@@ -23,7 +23,7 @@ class GeneMutator:
             if random.random() < self.config.mutation_rate:
                 in3idx = random.randrange(maxIdx)
             if random.random() < self.config.mutation_rate:
-                op = random.randrange(Gene.NUM_OPS)
+                op = random.randrange(len(g.ops))
             middlenodes.append((in1idx, in2idx, in3idx, op))
         output_idxes = []
         for idx in g.output_idxes:
@@ -31,4 +31,4 @@ class GeneMutator:
                 output_idxes.append(random.randrange(num_inputs + len(middlenodes)))
             else:
                 output_idxes.append(idx)
-        return Gene(num_inputs, middlenodes, output_idxes)
+        return Gene(num_inputs, middlenodes, output_idxes, g.ops)
