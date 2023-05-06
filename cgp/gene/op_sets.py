@@ -74,4 +74,50 @@ class OpSets:
             lambda in1, in2, in3: "and({}, {})".format(in1, in2),
             lambda in1, in2, in3: np.where((in1 > 0.0) & (in2 > 0.0), 1.0, -1.0)
         ),
+        (   # 17 or
+            lambda in1, in2, in3: "or({}, {})".format(in1, in2),
+            lambda in1, in2, in3: np.where((in1 > 0.0) | (in2 > 0.0), 1.0, -1.0)
+        ),
+        (   # 18 rmux
+            lambda in1, in2, in3: "rmux({}, {}, {})".format(in1, in2, in3),
+            lambda in1, in2, in3: np.where(in3 > 0.0, in1, in2)
+        ),
+        (   # 19 imult
+            lambda in1, in2, in3: "imult({}, {})".format(in1, in2),
+            lambda in1, in2, in3: in1 * in2 * -1
+        ),
+    ]
+
+    # GPTP II
+    # Cartesian Genetic Programming and the Post Docking Filtering Problem
+    # A. Beatriz Garmendia-Doval, Julian F. Miller, S. David Morley
+    GPTP_II = [
+        (   # +
+            lambda in1, in2, in3: "+({}, {})".format(in1, in2),
+            lambda in1, in2, in3: in1 + in2
+        ),
+        (   # -
+            lambda in1, in2, in3: "-({}, {})".format(in1, in2),
+            lambda in1, in2, in3: in1 - in2
+        ),
+        (   # *
+            lambda in1, in2, in3: "*({}, {})".format(in1, in2),
+            lambda in1, in2, in3: in1 * in2
+        ),
+        (   # /
+            lambda in1, in2, in3: "/({}, {})".format(in1, in2),
+            lambda in1, in2, in3: np.where(np.absolute(in2) < 0.00000001 , in1, in1 / in2)
+        ),
+        (   # log
+            lambda in1, in2, in3: "log({})".format(in1),
+            lambda in1, in2, in3: np.where(np.absolute(in1) < 0.00000001 , 0.0, np.log(np.absolute(in1)))
+        ),
+        (   # exp
+            lambda in1, in2, in3: "exp({})".format(in1),
+            lambda in1, in2, in3: np.where(in1 < -200, 0.0, np.where(in1 > 200, math.exp(200), np.exp(in1)))
+        ),
+        (   # if
+            lambda in1, in2, in3: "if({}, {}, {})".format(in1, in2, in3),
+            lambda in1, in2, in3: np.where(in1 > 0, in2, in3)
+        ),
     ]

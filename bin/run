@@ -24,6 +24,11 @@ def measure_fitness(actual, expected):
     # return np.sum(np.abs(actual - expected))
     return (np.square(actual - expected)).mean()
 
+def problem_input(batch_size):
+    input = [np.random.rand(3) * 2.0 - 1.0 for x in range(batch_size)]
+    input = np.asarray(input)
+    return input
+
 def problem_output(input):
     return (np.power(input[:,0], 2) - input[:,1])/2.0
     # return np.sin(input[:,0]) * np.cos(-1 * input[:,1])
@@ -39,15 +44,13 @@ lamb = 100
 
 pool = [builder.makeGene() for x in range(mu)]
 
-validation_input = [np.random.rand(3) for x in range(100)]
-validation_input = np.asarray(validation_input)
+validation_input = problem_input(100)
 validation_output = problem_output(validation_input)
 
 
 for generation in range(5000):
     print("GENERATION: {}".format(generation))
-    batch = [np.random.rand(3) for x in range(100)]
-    batch = np.asarray(batch)
+    batch = problem_input(100)
     expected_output = problem_output(batch)
 
     # Build our full pool:
