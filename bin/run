@@ -12,47 +12,32 @@ from cgp.gene import Gene, GeneBuilder, GeneBuilderConfig
 from cgp.gene import GeneMutator, GeneMutatorConfig
 from cgp.gene import OpSets
 
-op_set = OpSets.IMPROBED_2022
-
-builder_config = GeneBuilderConfig(4, 200, 1, op_set)
-builder = GeneBuilder(builder_config)
-
-mutator_config = GeneMutatorConfig(0.08)
-mutator = GeneMutator(mutator_config)
-
-def measure_fitness(actual, expected):
-    # return np.sum(np.abs(actual - expected))
-    return (np.square(actual - expected)).mean()
-
-def problem_input(batch_size):
-    input = [np.random.rand(4) * 2.0 - 1.0 for x in range(batch_size)]
-    input = np.asarray(input)
-    input[:3] = 1.0
-    return input
-
-def problem_output(input):
-    return (np.power(input[:,0], 2) - input[:,1])/2.0
-    # return np.sin(input[:,0]) * np.cos(-1 * input[:,1])
+from cgp.problems import IrisProblem
 
 @dataclass
 class MeasuredGene:
     fitness: float
     gene: Gene
 
-mu = 50
-lamb = 100
+problem = IrisProblem()
 
+op_set = OpSets.GPTP_II
 
+builder_config = GeneBuilderConfig(problem.numInputs(), 200, problem.numOutputs(), op_set)
+builder = GeneBuilder(builder_config)
+
+mutator_config = GeneMutatorConfig(0.08)
+mutator = GeneMutator(mutator_config)
+
+mu = 5
+lamb = 10
 pool = [builder.makeGene() for x in range(mu)]
 
-validation_input = problem_input(100)
-validation_output = problem_output(validation_input)
-
+validation_input, validation_output = problem.validationSet()
+train_input, train_output = problem.trainingSet()
 
 for generation in range(5000):
     print("GENERATION: {}".format(generation))
-    batch = problem_input(100)
-    expected_output = problem_output(batch)
 
     # Build our full pool:
     children = []
@@ -60,27 +45,23 @@ for generation in range(5000):
         parent = random.choice(pool)
         child = mutator.mutateGene(parent)
         children.append(child)
-
     pool.extend(children)
-    
+
     measured_genes = []
     for gene in pool:
-        gene_output = gene.evaluate(batch)
-        fitness = measure_fitness(gene_output, expected_output)
-        measured_genes.append(MeasuredGene(
-            fitness, gene
-        ))
+        gene_output = gene.evaluate(train_input)
+        fitness = problem.measureFitness(train_output, gene_output)
+        measured_genes.append(MeasuredGene(fitness, gene))
 
-    # Fitness is error, so lower fitness is better
     measured_genes.sort(key=lambda x: x.fitness)
-
     best_mu = measured_genes[:mu]
     pool = [x.gene for x in best_mu]
 
     validation_evaluated = pool[0].evaluate(validation_input)
-    validation_fitness = measure_fitness(validation_evaluated, validation_output)
-    print("\tValidation fitness: {}".format(validation_fitness))
+    validation_idxes = np.argmax(validation_evaluated, axis=1)
+    matches = np.count_nonzero(validation_idxes == validation_output)
+    print("Accuracy: {}".format(matches / len(validation_output)))
+    # print(validation_idxes.shape)
+    # validation_fitness = problem.measureFitness(validation_output, validation_evaluated)
+    # print("\tValidation fitness: {}".format(validation_fitness))
     print("\t{}".format(parent.toHumanFormula()))
-
-    # We have the best parent:
-    offspring = [mutator.mutateGene(parent) for x in range(20)]
