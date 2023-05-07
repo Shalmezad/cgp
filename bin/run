@@ -14,7 +14,7 @@ from cgp.gene import OpSets
 
 op_set = OpSets.IMPROBED_2022
 
-builder_config = GeneBuilderConfig(3, 200, 1, op_set)
+builder_config = GeneBuilderConfig(4, 200, 1, op_set)
 builder = GeneBuilder(builder_config)
 
 mutator_config = GeneMutatorConfig(0.08)
@@ -25,8 +25,9 @@ def measure_fitness(actual, expected):
     return (np.square(actual - expected)).mean()
 
 def problem_input(batch_size):
-    input = [np.random.rand(3) * 2.0 - 1.0 for x in range(batch_size)]
+    input = [np.random.rand(4) * 2.0 - 1.0 for x in range(batch_size)]
     input = np.asarray(input)
+    input[:3] = 1.0
     return input
 
 def problem_output(input):
