@@ -11,12 +11,12 @@ class Gene:
     output_idxes: list[int]
     ops: list
 
-    def evaluate(self, input: npt.ArrayLike):
+    def evaluate(self, input: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         result = np.asarray([self.evaluateNode(x, input) for x in self.output_idxes])
         result = np.swapaxes(result, 0,1)
         return result
     
-    def evaluateNode(self, nodeIdx, input):
+    def evaluateNode(self, nodeIdx: int, input: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         if nodeIdx < self.num_inputs:
             return input[:,nodeIdx]
         else:
@@ -24,7 +24,7 @@ class Gene:
             middleNode = self.middlenodes[nodeIdx]
             return self.evaluateMiddleNode(middleNode, input)
         
-    def evaluateMiddleNode(self, middleNode: tuple[int, int, int, int], input: npt.ArrayLike) -> npt.ArrayLike:
+    def evaluateMiddleNode(self, middleNode: tuple[int, int, int, int], input: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         in1idx, in2idx, in3idx, op_id = middleNode
         in1 = self.evaluateNode(in1idx, input)
         in2 = self.evaluateNode(in2idx, input)
