@@ -10,7 +10,7 @@ class GeneMutator:
     def __init__(self, config:GeneMutatorConfig) -> None:
         self.config = config
 
-    def mutateGene(self, g):
+    def mutateGene(self, g: Gene) -> Gene:
         num_inputs = g.num_inputs
         middlenodes = []
         for idx, middlenode in enumerate(g.middlenodes):

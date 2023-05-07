@@ -1,11 +1,19 @@
 import math
 import numpy as np
+import numpy.typing as npt
+from typing import Callable
 
 class OpSets:
+
+    Op = tuple[
+        Callable[[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]], str],
+        Callable[[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]], npt.NDArray[np.float64]],
+    ]
+
     # IMPROBED: Multiple Problem-Solving Brian via Evolved Developmental Programs
     # Julian Francis Miller 
     # Artificial Life 27: 300–335 (2022) https://doi.org/10.1162/artl_a_00346
-    IMPROBED_2022 = [
+    IMPROBED_2022: list[Op] = [
         (   # 0 abs
             lambda in1, in2, in3: "|{}|".format(in1),
             lambda in1, in2, in3: np.absolute(in1)
@@ -91,7 +99,7 @@ class OpSets:
     # GPTP II
     # Cartesian Genetic Programming and the Post Docking Filtering Problem
     # A. Beatriz Garmendia-Doval, Julian F. Miller, S. David Morley
-    GPTP_II = [
+    GPTP_II: list[Op] = [
         (   # +
             lambda in1, in2, in3: "+({}, {})".format(in1, in2),
             lambda in1, in2, in3: in1 + in2
