@@ -94,6 +94,14 @@ class OpSets:
             lambda in1, in2, in3: "imult({}, {})".format(in1, in2),
             lambda in1, in2, in3: in1 * in2 * -1
         ),
+        (   # 20 xor
+            lambda in1, in2, in3: "xor({}, {})".format(in1, in2),
+            lambda in1, in2, in3: np.where(((in1 > 0.0) & (in2 > 0.0)) | ((in1 < 0.0) & (in2 < 0.0)), -1.0, 1.0)
+        ),
+        (   # 21 istep
+            lambda in1, in2, in3: "istep({})".format(in1),
+            lambda in1, in2, in3: np.where(in1 < 1.0, 0.0, -1.0)
+        ),
     ]
 
     # GPTP II
