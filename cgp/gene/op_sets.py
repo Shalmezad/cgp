@@ -5,15 +5,26 @@ from typing import Callable
 
 class OpSets:
 
-    Op = tuple[
+    NamedOp = tuple[
         Callable[[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]], str],
         Callable[[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]], npt.NDArray[np.float64]],
     ]
 
+    SAFE_DIVISION = (   # /
+        lambda in1, in2, in3: "/({}, {})".format(in1, in2),
+        # lambda in1, in2, in3: np.where(np.absolute(in2) < 0.00001 , in1, in1 / in2)
+        lambda in1, in2, in3: np.divide(in1, in2, out=in1, where=in2!=0)
+    )
+    SAFE_LOG = (   # log
+        lambda in1, in2, in3: "log({})".format(in1),
+        # lambda in1, in2, in3: np.where(np.absolute(in1) < 0.00001 , 0.0, np.log(np.absolute(in1)))
+        lambda in1, in2, in3: np.log(np.absolute(in1), out=np.zeros_like(in1), where=in1!=0)
+    )
+
     # IMPROBED: Multiple Problem-Solving Brian via Evolved Developmental Programs
     # Julian Francis Miller 
     # Artificial Life 27: 300–335 (2022) https://doi.org/10.1162/artl_a_00346
-    IMPROBED_2022: list[Op] = [
+    IMPROBED_2022: list[NamedOp] = [
         (   # 0 abs
             lambda in1, in2, in3: "|{}|".format(in1),
             lambda in1, in2, in3: np.absolute(in1)
@@ -107,7 +118,7 @@ class OpSets:
     # GPTP II
     # Cartesian Genetic Programming and the Post Docking Filtering Problem
     # A. Beatriz Garmendia-Doval, Julian F. Miller, S. David Morley
-    GPTP_II: list[Op] = [
+    GPTP_II: list[NamedOp] = [
         (   # +
             lambda in1, in2, in3: "+({}, {})".format(in1, in2),
             lambda in1, in2, in3: in1 + in2
@@ -120,17 +131,14 @@ class OpSets:
             lambda in1, in2, in3: "*({}, {})".format(in1, in2),
             lambda in1, in2, in3: in1 * in2
         ),
-        (   # /
-            lambda in1, in2, in3: "/({}, {})".format(in1, in2),
-            lambda in1, in2, in3: np.where(np.absolute(in2) < 0.00000001 , in1, in1 / in2)
-        ),
-        (   # log
-            lambda in1, in2, in3: "log({})".format(in1),
-            lambda in1, in2, in3: np.where(np.absolute(in1) < 0.00000001 , 0.0, np.log(np.absolute(in1)))
-        ),
+        SAFE_DIVISION,
+        SAFE_LOG,
         (   # exp
             lambda in1, in2, in3: "exp({})".format(in1),
-            lambda in1, in2, in3: np.where(in1 < -200, 0.0, np.where(in1 > 200, math.exp(200), np.exp(in1)))
+            lambda in1, in2, in3: (
+                np.where(in1 > 200, math.exp(200), 0.0) +
+                np.exp(in1, out=np.zeros_like(in1), where=(in1 <= 200)&(in1 > -200))
+            )
         ),
         (   # if
             lambda in1, in2, in3: "if({}, {}, {})".format(in1, in2, in3),

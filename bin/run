@@ -6,20 +6,22 @@ sys.path.append('.')
 from dataclasses import dataclass
 import random
 
+import cli_ui
 import numpy as np
 
 from cgp.gene import Gene, GeneBuilder, GeneBuilderConfig
 from cgp.gene import GeneMutator, GeneMutatorConfig
 from cgp.gene import OpSets
 
-from cgp.problems import IrisProblem
+from cgp.problems import GlassProblem, IrisProblem
 
 @dataclass
 class MeasuredGene:
     fitness: float
     gene: Gene
 
-problem = IrisProblem()
+# problem = IrisProblem()
+problem = GlassProblem()
 
 op_set = OpSets.GPTP_II
 
@@ -29,16 +31,16 @@ builder = GeneBuilder(builder_config)
 mutator_config = GeneMutatorConfig(0.08)
 mutator = GeneMutator(mutator_config)
 
-mu = 5
-lamb = 10
+mu = 10
+lamb = 100
 pool = [builder.makeGene() for x in range(mu)]
 
 validation_input, validation_output = problem.validationSet()
-train_input, train_output = problem.trainingSet()
+train_input, train_output = problem.trainingSet()\
 
-for generation in range(5000):
-    print("GENERATION: {}".format(generation))
+max_generations = 5000
 
+for generation in range(max_generations):
     # Build our full pool:
     children = []
     for x in range(lamb):
@@ -53,6 +55,7 @@ for generation in range(5000):
         fitness = problem.measureFitness(train_output, gene_output)
         measured_genes.append(MeasuredGene(fitness, gene))
 
+    # Lower is better:
     measured_genes.sort(key=lambda x: x.fitness)
     best_mu = measured_genes[:mu]
     pool = [x.gene for x in best_mu]
@@ -60,8 +63,6 @@ for generation in range(5000):
     validation_evaluated = pool[0].evaluate(validation_input)
     validation_idxes = np.argmax(validation_evaluated, axis=1)
     matches = np.count_nonzero(validation_idxes == validation_output)
-    print("Accuracy: {}".format(matches / len(validation_output)))
-    # print(validation_idxes.shape)
-    # validation_fitness = problem.measureFitness(validation_output, validation_evaluated)
-    # print("\tValidation fitness: {}".format(validation_fitness))
-    print("\t{}".format(parent.toHumanFormula()))
+    validation_accuracy = matches / len(validation_output)
+
+    cli_ui.info_count(generation, max_generations, "Validation Accuracy: {} Best Gene: {}".format(validation_accuracy, parent.toHumanFormula()))

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import math
+import warnings
 
 import numpy as np
 import numpy.typing as npt
@@ -25,6 +26,7 @@ class Gene:
             return self.evaluateMiddleNode(middleNode, input)
         
     def evaluateMiddleNode(self, middleNode: tuple[int, int, int, int], input: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+
         in1idx, in2idx, in3idx, op_id = middleNode
         in1 = self.evaluateNode(in1idx, input)
         in2 = self.evaluateNode(in2idx, input)
@@ -34,7 +36,18 @@ class Gene:
             raise ValueError("Unknown operator: {}".format(op_id))
 
         op = self.ops[op_id]
-        return op[1](in1, in2, in3)
+        try:
+            result = op[1](in1, in2, in3)
+            result[np.isnan(result)] = 0
+            return result
+        except FloatingPointError as e:
+            # numpy runtime warning:
+            # We're going to reraise, but also post additional info:
+            print("Encountered a warning in Gene#evaluateMiddleNode")
+            print("middleNode: {}".format(middleNode))
+            print("Input 1: {}".format(in1))
+            print("Input 2: {}".format(in2))
+            raise e
     
     def nodeToHumanFormula(self, nodeIdx: int) -> str:
         if nodeIdx < self.num_inputs:
