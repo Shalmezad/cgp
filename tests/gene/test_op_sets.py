@@ -1,5 +1,3 @@
-import sys
-sys.path.append('.')
 from cgp.gene import OpSets
 import unittest
 import numpy as np
