@@ -3,6 +3,7 @@ import random
 import numpy as np
 from .problem_base import ProblemBase
 
+
 class GlassProblem(ProblemBase):
     """
     UCI Glass Identification Data Set
@@ -19,7 +20,8 @@ class GlassProblem(ProblemBase):
                 if len(row) == 11:
                     input = row[1:10]
                     input = [float(i) for i in input]
-                    # Have to subtract one as classes start at 1, and our indexes start at 0
+                    # Have to subtract one as classes start at 1,
+                    # and our indexes start at 0
                     output = int(row[10]) - 1
                     data_item = (input, output)
                     self._data.append(data_item)
@@ -47,33 +49,28 @@ class GlassProblem(ProblemBase):
 
     def numInputs(self):
         return 9
-    
+
     def numOutputs(self):
         # Going with softmax:
         return 7
-    
+
     def trainingSet(self):
         return self._training_data
 
     def validationSet(self):
         return self._validation_data
-    
+
     def _one_hot(self, a, num_classes):
         return np.squeeze(np.eye(num_classes)[a.reshape(-1)])
 
     def measureFitness(self, expected_output, actual_output):
         omax = np.max(actual_output)
         actual_output = actual_output / omax
-        exps = np.exp(actual_output)
-        exp_sum = np.sum(exps, axis=1)
-        softmax = exps / exp_sum[:,None]
-        # print(expected_output)
-        # print(expected_output.shape)
 
-        # m = expected_output.shape[0]
-        # log_likelihood = -np.log(softmax[range(m),expected_output])
-        # loss = np.sum(log_likelihood) / m
-        true_class_logits = actual_output[np.arange(len(actual_output)), expected_output]
-        cross_entropy = - true_class_logits + np.log(np.sum(np.exp(actual_output), axis=-1))
+        true_class_logits = actual_output[
+            np.arange(len(actual_output)),
+            expected_output]
+        cross_entropy = - true_class_logits + np.log(
+            np.sum(np.exp(actual_output), axis=-1))
         # return cross_entropy
         return np.mean(cross_entropy)

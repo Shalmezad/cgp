@@ -3,12 +3,13 @@ from dataclasses import dataclass
 from cgp.gene import GeneBuilder, GeneBuilderConfig, OpSets
 from .brain import Brain
 
+
 @dataclass
-class GeneBuilderConfig:
+class BrainBuilderConfig:
     num_inputs: int
-    num_middlenodes: int
     num_outputs: int
     ops: list
+
 
 class BrainBuilder:
     def __init__(self) -> None:
@@ -31,4 +32,7 @@ class BrainBuilder:
     def build(self) -> Brain:
         soma_program = self.soma_builder.makeGene()
         dendrite_program = self.dendrite_builder.makeGene()
-
+        brain = Brain()
+        brain.somaProgram = soma_program
+        brain.dendriteProgram = dendrite_program
+        return brain

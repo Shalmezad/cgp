@@ -10,19 +10,21 @@ from cgp.gene import Gene, GeneBuilder, GeneBuilderConfig
 from cgp.gene import GeneMutator, GeneMutatorConfig
 from cgp.gene import OpSets
 
-from cgp.problems import GlassProblem, IrisProblem
+from cgp.problems import GlassProblem
+
 
 @dataclass
 class MeasuredGene:
     fitness: float
     gene: Gene
 
-# problem = IrisProblem()
+
 problem = GlassProblem()
 
 op_set = OpSets.GPTP_II
 
-builder_config = GeneBuilderConfig(problem.numInputs(), 200, problem.numOutputs(), op_set)
+builder_config = GeneBuilderConfig(
+    problem.numInputs(), 200, problem.numOutputs(), op_set)
 builder = GeneBuilder(builder_config)
 
 mutator_config = GeneMutatorConfig(0.08)
@@ -33,7 +35,7 @@ lamb = 100
 pool = [builder.makeGene() for x in range(mu)]
 
 validation_input, validation_output = problem.validationSet()
-train_input, train_output = problem.trainingSet()\
+train_input, train_output = problem.trainingSet()
 
 max_generations = 5000
 
@@ -62,4 +64,9 @@ for generation in range(max_generations):
     matches = np.count_nonzero(validation_idxes == validation_output)
     validation_accuracy = matches / len(validation_output)
 
-    cli_ui.info_count(generation, max_generations, "Validation Accuracy: {} Best Gene: {}".format(validation_accuracy, parent.toHumanFormula()))
+    cli_ui.info_count(
+        generation,
+        max_generations,
+        "Validation Accuracy: {} Best Gene: {}".format(
+            validation_accuracy,
+            parent.toHumanFormula()))
