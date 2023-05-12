@@ -18,8 +18,7 @@ class GlassProblem(ProblemBase):
             csvreader = csv.reader(csvfile, delimiter=',', quotechar='|')
             for row in csvreader:
                 if len(row) == 11:
-                    input = row[1:10]
-                    input = [float(i) for i in input]
+                    input = [float(i) for i in row[1:10]]
                     # Have to subtract one as classes start at 1,
                     # and our indexes start at 0
                     output = int(row[10]) - 1
@@ -35,16 +34,12 @@ class GlassProblem(ProblemBase):
         train_data = self._data
         validation_data = self._data
         # Now to map it better:
-        train_data_in = [td[0] for td in train_data]
-        train_data_in = np.asarray(train_data_in)
-        train_data_out = [td[1] for td in train_data]
-        train_data_out = np.asarray(train_data_out)
+        train_data_in = np.asarray([td[0] for td in train_data])
+        train_data_out = np.asarray([td[1] for td in train_data])
 
         self._training_data = (train_data_in, train_data_out)
-        validation_data_in = [vd[0] for vd in validation_data]
-        validation_data_in = np.asarray(validation_data_in)
-        validation_data_out = [vd[1] for vd in validation_data]
-        validation_data_out = np.asarray(validation_data_out)
+        validation_data_in = np.asarray([vd[0] for vd in validation_data])
+        validation_data_out = np.asarray([vd[1] for vd in validation_data])
         self._validation_data = (validation_data_in, validation_data_out)
 
     def numInputs(self):

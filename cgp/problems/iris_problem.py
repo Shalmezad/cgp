@@ -15,8 +15,7 @@ class IrisProblem(ProblemBase):
             csvreader = csv.reader(csvfile, delimiter=',', quotechar='|')
             for row in csvreader:
                 if len(row) == 5:
-                    input = row[:4]
-                    input = [float(i) for i in input]
+                    input = [float(i) for i in row[:4]]
                     output = row[4]
                     data_item = (input, output)
                     self._data.append(data_item)
@@ -33,17 +32,14 @@ class IrisProblem(ProblemBase):
         train_data = self._data[:100]
         validation_data = self._data[100:]
         # Now to map it better:
-        train_data_in = [td[0] for td in train_data]
-        train_data_in = np.asarray(train_data_in)
-        train_data_out = [self._class_map[td[1]] for td in train_data]
-        train_data_out = np.asarray(train_data_out)
+        train_data_in = np.asarray([td[0] for td in train_data])
+        train_data_out = np.asarray(
+            [self._class_map[td[1]] for td in train_data])
 
         self._training_data = (train_data_in, train_data_out)
-        validation_data_in = [vd[0] for vd in validation_data]
-        validation_data_in = np.asarray(validation_data_in)
-        validation_data_out = [self._class_map[vd[1]]
-                               for vd in validation_data]
-        validation_data_out = np.asarray(validation_data_out)
+        validation_data_in = np.asarray([vd[0] for vd in validation_data])
+        validation_data_out = np.asarray(
+            [self._class_map[vd[1]] for vd in validation_data])
         self._validation_data = (validation_data_in, validation_data_out)
 
     def numInputs(self):

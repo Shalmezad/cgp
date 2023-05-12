@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 
-@dataclass
-class Point2d(frozen=True):
+@dataclass(frozen=True)
+class Point2d:
     x: float
     y: float
