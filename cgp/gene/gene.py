@@ -15,6 +15,11 @@ class Gene:
             self,
             input: npt.NDArray[np.float64]
             ) -> npt.NDArray[np.float64]:
+        if input.ndim != 2 or input.shape[1] != self.num_inputs:
+            raise ValueError(
+                "Expected shape of (X,{}), received {}".format(
+                    self.num_inputs,
+                    input.shape))
         result = np.asarray([
             self.evaluateNode(x, input) for x in self.output_idxes])
         result = np.swapaxes(result, 0, 1)

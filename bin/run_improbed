@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+
+from cgp.improbed import BrainBuilder, Config
+from cgp.problems import GlassProblem
+
+
+problem = GlassProblem()
+
+config = Config()
+brain_builder = BrainBuilder(config)
+brain = brain_builder.build()
+
+brain.update()
