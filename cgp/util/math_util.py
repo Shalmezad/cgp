@@ -1,8 +1,10 @@
 class MathUtil:
-    def clamp(val, min_val, max_val):
+    @staticmethod
+    def clamp(val: float, min_val: float, max_val: float) -> float:
         return max(min(val, max_val), min_val)
-    
-    def sign(val):
+
+    @staticmethod
+    def sign(val: float) -> float:
         if val > 0.0:
             return 1.0
         elif val < 0.0:

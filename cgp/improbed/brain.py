@@ -1,6 +1,8 @@
+from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+import numpy.typing as npt
 
 from cgp.util import MathUtil
 from cgp.gene import Gene
@@ -21,7 +23,7 @@ class Brain:
 
     config: Config
 
-    def update(self):
+    def update(self) -> Brain:
         newNeurons = []
         nonOutputNeurons = []
         outputNeurons = []
@@ -67,13 +69,16 @@ class Brain:
             self.config
         )
 
-    def runSoma(self, neuron):
+    def runSoma(self, neuron: Neuron) -> tuple[float, float, float, float]:
         somaProgramInputs = neuron.programInputs()
         somaProgramOutputs = self.somaProgram.evaluate(somaProgramInputs)
         updatedNeuron = self.updateNeuron(neuron, somaProgramOutputs[0])
         return updatedNeuron
 
-    def updateNeuron(self, neuron, somaProgramOutputs):
+    def updateNeuron(self,
+                     neuron: Neuron,
+                     somaProgramOutputs: npt.NDArray[np.float64]
+                     ) -> tuple[float, float, float, float]:
         parentHealth = neuron.health
         parentPositionX = neuron.position.x
         parentPositionY = neuron.position.y
@@ -101,9 +106,9 @@ class Brain:
 
     def runAllDendrites(self,
                         neuron: Neuron,
-                        newSomaPosition,
-                        newSomaHealth,
-                        newSomaBias):
+                        newSomaPosition: Point2d,
+                        newSomaHealth: float,
+                        newSomaBias: float) -> Neuron:
         # We're going to rearrange this slightly
         # 1: Loop through all existing dendrites, and update:
         new_dendrites = []
@@ -137,11 +142,11 @@ class Brain:
                       newSomaBias,
                       new_dendrites,
                       neuron.out)
-    
+
     def generateDendrite(self, neuron: Neuron) -> Dendrite:
         # New dendrite is given weight/health of 1.0
         # And x/y of 0.8 of parent
-        initialPosition = Point2d(neuron.position.x * 0.8, 
+        initialPosition = Point2d(neuron.position.x * 0.8,
                                   neuron.position.y * 0.8)
         return Dendrite(
             1.0,
@@ -153,7 +158,7 @@ class Brain:
             self,
             neuron: Neuron,
             dendrite: Dendrite,
-            dendriteOutputs) -> Dendrite:
+            dendriteOutputs: npt.NDArray[np.float64]) -> Dendrite:
         parentHealth = dendrite.health
         parentPositionX = dendrite.position.x
         parentPositionY = dendrite.position.y

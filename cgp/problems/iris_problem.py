@@ -1,6 +1,9 @@
 import csv
 import random
+
 import numpy as np
+import numpy.typing as npt
+
 from .problem_base import ProblemBase
 
 
@@ -42,26 +45,30 @@ class IrisProblem(ProblemBase):
             [self._class_map[vd[1]] for vd in validation_data])
         self._validation_data = (validation_data_in, validation_data_out)
 
-    def numInputs(self):
+    def numInputs(self) -> int:
         return 4
 
-    def numOutputs(self):
+    def numOutputs(self) -> int:
         # Going with softmax:
         return 3
 
-    def trainingSet(self):
+    def trainingSet(self) -> tuple[
+            npt.NDArray[np.float64],
+            npt.NDArray[np.float64]]:
         return self._training_data
 
-    def validationSet(self):
+    def validationSet(self) -> tuple[
+            npt.NDArray[np.float64],
+            npt.NDArray[np.float64]]:
         return self._validation_data
 
-    def _one_hot(self, a, num_classes):
-        return np.squeeze(np.eye(num_classes)[a.reshape(-1)])
-
-    def measureFitness(self, expected_output, actual_output):
+    def measureFitness(self,
+                       expected_output: npt.NDArray[np.float64],
+                       actual_output: npt.NDArray[np.float64]
+                       ) -> float:
         true_class_logits = actual_output[
             np.arange(len(actual_output)), expected_output]
         cross_entropy = - true_class_logits + np.log(
             np.sum(np.exp(actual_output), axis=-1))
         # return cross_entropy
-        return np.mean(cross_entropy)
+        return np.mean(cross_entropy)  # type: ignore

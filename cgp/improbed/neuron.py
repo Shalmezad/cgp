@@ -30,7 +30,7 @@ class Neuron:
         inputs.append(self.getAvgDendriteWeight())
         inputs.append(self.getAvgDendriteHealth())
         return np.asarray(inputs).reshape((1, -1))
-    
+
     def getAvgDendritePosition(self) -> Point2d:
         totalX = 0.0
         totalY = 0.0

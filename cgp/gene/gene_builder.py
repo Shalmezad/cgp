@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 import random
+
 from .gene import Gene
+from .op_sets import OpSets
 
 
 @dataclass
@@ -8,7 +10,7 @@ class GeneBuilderConfig:
     num_inputs: int
     num_middlenodes: int
     num_outputs: int
-    ops: list
+    ops: list[OpSets.NamedOp]
 
 
 class GeneBuilder:
@@ -25,7 +27,7 @@ class GeneBuilder:
             for x in range(self.config.num_outputs)]
         return Gene(num_inputs, middlenodes, output_idxes, self.config.ops)
 
-    def makeMiddleNode(self, middleIdx) -> tuple[int, int, int, int]:
+    def makeMiddleNode(self, middleIdx: int) -> tuple[int, int, int, int]:
         maxIdx = self.config.num_inputs + middleIdx
         in1idx = random.randrange(maxIdx)
         in2idx = random.randrange(maxIdx)

@@ -5,28 +5,30 @@ from typing import Callable
 
 
 class OpSets:
+    OpName = Callable[
+        [
+            str,
+            str,
+            str
+        ],
+        str]
+    OpFunction = Callable[
+        [
+            npt.NDArray[np.float64],
+            npt.NDArray[np.float64],
+            npt.NDArray[np.float64]
+        ],
+        npt.NDArray[np.float64]]
+    NamedOp = tuple[OpName, OpFunction]
 
-    NamedOp = tuple[
-        Callable[[
-            npt.NDArray[np.float64],
-            npt.NDArray[np.float64],
-            npt.NDArray[np.float64]],
-            str],
-        Callable[[
-            npt.NDArray[np.float64],
-            npt.NDArray[np.float64],
-            npt.NDArray[np.float64]],
-            npt.NDArray[np.float64]],
-    ]
-
-    SAFE_DIVISION = (   # /
+    SAFE_DIVISION: NamedOp = (   # /
         lambda in1, in2, in3: "/({}, {})".format(in1, in2),
         lambda in1, in2, in3: np.divide(
             in1, in2, out=in1, where=in2 != 0)
     )
-    SAFE_LOG = (   # log
+    SAFE_LOG: NamedOp = (   # log
         lambda in1, in2, in3: "log({})".format(in1),
-        lambda in1, in2, in3: np.log(
+        lambda in1, in2, in3: np.log(  # type: ignore
             np.absolute(in1), out=np.zeros_like(in1), where=in1 != 0)
     )
 
@@ -41,7 +43,8 @@ class OpSets:
         ),
         (   # 1 sqrt
             lambda in1, in2, in3: "sqrt(|{}|)".format(in1),
-            lambda in1, in2, in3: np.sqrt(np.absolute(in1))
+            lambda in1, in2, in3: np.sqrt(  # type: ignore
+                np.absolute(in1))
         ),
         (   # 2 sqr
             lambda in1, in2, in3: "{}^2".format(in1),
@@ -54,7 +57,8 @@ class OpSets:
         (   # 4 exp
             lambda in1, in2, in3: "exp({})".format(in1),
             lambda in1, in2, in3: (
-                (2 * np.exp(in1 + 1) - math.pow(math.e, 2) - 1) /
+                (  # type: ignore
+                    2 * np.exp(in1 + 1) - math.pow(math.e, 2) - 1) /
                 (math.pow(math.e, 2) - 1))
         ),
         (   # 5 sin
@@ -79,7 +83,7 @@ class OpSets:
         ),
         (   # 10 hyp
             lambda in1, in2, in3: "hyp({}, {})".format(in1, in2),
-            lambda in1, in2, in3: np.sqrt(
+            lambda in1, in2, in3: np.sqrt(  # type: ignore
                 (np.power(in1, 2) + np.power(in2, 2))/2.0)
         ),
         (   # 11 add
@@ -153,7 +157,7 @@ class OpSets:
         (   # exp
             lambda in1, in2, in3: "exp({})".format(in1),
             lambda in1, in2, in3: (
-                np.where(in1 > 200, math.exp(200), 0.0) +
+                np.where(in1 > 200, math.exp(200), 0.0) +  # type: ignore
                 np.exp(
                     in1,
                     out=np.zeros_like(in1),

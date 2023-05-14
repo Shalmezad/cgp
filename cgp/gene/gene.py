@@ -3,13 +3,15 @@ from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
 
+from .op_sets import OpSets
+
 
 @dataclass(frozen=True)
 class Gene:
     num_inputs: int
     middlenodes: list[tuple[int, int, int, int]]
     output_idxes: list[int]
-    ops: list
+    ops: list[OpSets.NamedOp]
 
     def evaluate(
             self,
