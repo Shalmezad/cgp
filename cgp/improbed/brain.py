@@ -59,7 +59,7 @@ class Brain:
                     break
         for outputNeuron in outputNeurons:
             health, positionX, positionY, bias = self.runSoma(neuron)
-            updatedNeuron = self.runAllDendrites(neuron,
+            updatedNeuron = self.runAllDendrites(outputNeuron,
                                                  Point2d(positionX, positionY),
                                                  health,
                                                  bias)
@@ -211,15 +211,19 @@ class Brain:
             parentNeuron.out
         )
 
-    def extractANN(self, problem, outputAddress):
-        numberInputs = 3
-        nonOutputNeur = []
+    def extractANN(self, problem):
+        numberInputs = len(self.inputLocations)
+        nonOutputNeur: list[Neuron] = []
         nonOutputNeuronAddress = []
         outputNeurons = []
         outputNeuronAddress = []
         phenotype_isOut = []
         phenotype_bias = []
         phenotype_address = []
+        phenotype_connection_addresses = []
+        phenotype_weights = []
+        phenotype_num_connection_address = []
+        phenotype_output_addresses = []
         for i in range(len(self.neurons)):
             address = i + numberInputs
             neuron = self.neurons[i]
@@ -234,11 +238,85 @@ class Brain:
             phenotype_isOut.append(0)
             phenotype_bias.append(neuron.bias)
             phenotype_address.append(nonOutputNeuronAddress[i])
+            phenotype_connection_addresses.append([])
+            phenotype_weights.append([])
             # neuronPosition = nonOutputNeur[i].position
             for j in range(len(neuron.dendrites)):
                 dendrite = neuron.dendrites[j]
                 dendPos = dendrite.position
-                next
+                # If it's x is > neuron x, reflect it:
+                if dendPos.x > neuron.position.x:
+                    delta = dendPos.x - neuron.position.x
+                    dendPos = Point2d(neuron.position.x - delta, dendPos.y)
+                addressClosest = self.getClosest(
+                    len(nonOutputNeur),
+                    nonOutputNeur,
+                    neuron.out,
+                    dendPos
+                )
+                phenotype_connection_addresses[i].append(addressClosest)
+                phenotype_weights[i].append(dendrite.weight)
+            phenotype_num_connection_address.append(len(neuron.dendrites))
+            # TODO: Finish coding me
+        # END for i in range(len(nonOutputNeur)):
+        for i in range(len(outputNeurons)):
+            il = i + len(nonOutputNeur)
+            neuron = outputNeurons[i]
+            phenotype_isOut.append(neuron.out)
+            phenotype_bias.append(neuron.bias)
+            phenotype_address.append(outputNeuronAddress[i])
+            phenotype_connection_addresses.append([])
+            phenotype_weights.append([])
+            for j in range(len(neuron.dendrites)):
+                dendrite = neuron.dendrites[j]
+                dendPos = dendrite.position
+                # If it's x is > neuron x, reflect it:
+                if dendPos.x > neuron.position.x:
+                    delta = dendPos.x - neuron.position.x
+                    dendPos = Point2d(neuron.position.x - delta, dendPos.y)
+                addressClosest = self.getClosest(
+                    len(nonOutputNeur),
+                    nonOutputNeur,
+                    neuron.out,
+                    dendPos
+                )
+                phenotype_connection_addresses[il].append(addressClosest)
+                phenotype_weights[il].append(dendrite.weight)
+            phenotype_num_connection_address.append(len(neuron.dendrites))
+            if neuron.out == problem + 1:
+                phenotype_output_addresses.append(outputNeuronAddress[i])
+        # END for i in range(len(outputNeurons)):
+        return ANN(
+            phenotype_connection_addresses,
+            phenotype_weights,
+            phenotype_isOut,
+            phenotype_bias,
+            phenotype_address,
+            phenotype_num_connection_address,
+            phenotype_output_addresses
+        )
 
-    def getClosest(self, numNonOutNeur, nonOutNeur, isOut, dendPos):
-        pass
+    def getClosest(self,
+                   numNonOutNeur: int,
+                   nonOutNeur: list[Neuron],
+                   isOut: int,
+                   dendPos: Point2d) -> int:
+        addressOfClosest = 0
+        min = 3.0
+        if isOut == 0:
+            # We're looking at inputs:
+            for inputIdx in range(len(self.inputLocations)):
+                il = self.inputLocations[inputIdx]
+                if il.x < dendPos.x:
+                    distance = il.distanceTo(dendPos)
+                    if distance < min:
+                        min = distance
+                        addressOfClosest = inputIdx
+        for j in range(numNonOutNeur):
+            neuron = nonOutNeur[j]
+            if neuron.position.x < dendPos.x:
+                distance = neuron.position.distanceTo(dendPos)
+                if distance < min:
+                    min = distance
+                    addressOfClosest = j + len(self.inputLocations)
+        return addressOfClosest

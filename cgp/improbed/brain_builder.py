@@ -72,8 +72,9 @@ class BrainBuilder:
                     Point2d(random.random() * 2 - 1, random.random() * 2 - 1),
                     random.random() * 2 - 1,
                     dendrites,
-                    i
+                    i+1  # Has to be +1 as indexes start at 0
                 )
+                initial_neurons.append(neuron)
 
         input_locations = []
         for input_count in self.config.num_inputs:
