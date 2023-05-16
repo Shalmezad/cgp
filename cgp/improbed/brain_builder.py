@@ -53,10 +53,42 @@ class BrainBuilder:
             )
             initial_neurons.append(neuron)
 
+        for i in range(len(self.config.num_outputs)):
+            num_out_problem_i = self.config.num_outputs[i]
+            for _ in range(num_out_problem_i):
+                dendrites = []
+                for _ in range(self.config.initial_num_dendrites):
+                    # Dendrites initialized with random
+                    #   health, weight, and position
+                    dendrite = Dendrite(
+                        random.random() * 2 - 1,
+                        random.random() * 2 - 1,
+                        Point2d(random.random(), random.random())
+                    )
+                    dendrites.append(dendrite)
+                # Neurons are *initialized* with random values
+                neuron = Neuron(
+                    random.random() * 2 - 1,
+                    Point2d(random.random() * 2 - 1, random.random() * 2 - 1),
+                    random.random() * 2 - 1,
+                    dendrites,
+                    i
+                )
+
+        input_locations = []
+        for input_count in self.config.num_inputs:
+            for _ in range(input_count):
+                # Make a random input point:
+                p = Point2d(
+                    random.random() * -1.0,
+                    random.random() * 2 - 1)
+                input_locations.append(p)
+
         brain = Brain(
             soma_program,
             dendrite_program,
             initial_neurons,
+            input_locations,
             self.config
         )
         return brain

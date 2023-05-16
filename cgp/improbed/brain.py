@@ -6,6 +6,7 @@ import numpy.typing as npt
 
 from cgp.util import MathUtil
 from cgp.gene import Gene
+from .ann import ANN
 from .config import Config
 from .dendrite import Dendrite
 from .neuron import Neuron
@@ -20,6 +21,8 @@ class Brain:
     dendriteProgram: Gene
 
     neurons: list[Neuron]
+
+    inputLocations: list[Point2d]
 
     config: Config
 
@@ -66,6 +69,7 @@ class Brain:
             self.somaProgram,
             self.dendriteProgram,
             newNeurons,
+            self.inputLocations,
             self.config
         )
 
@@ -206,3 +210,35 @@ class Brain:
             newDendrites,
             parentNeuron.out
         )
+
+    def extractANN(self, problem, outputAddress):
+        numberInputs = 3
+        nonOutputNeur = []
+        nonOutputNeuronAddress = []
+        outputNeurons = []
+        outputNeuronAddress = []
+        phenotype_isOut = []
+        phenotype_bias = []
+        phenotype_address = []
+        for i in range(len(self.neurons)):
+            address = i + numberInputs
+            neuron = self.neurons[i]
+            if neuron.out > 0:
+                outputNeurons.append(neuron)
+                outputNeuronAddress.append(address)
+            else:
+                nonOutputNeur.append(neuron)
+                nonOutputNeuronAddress.append(address)
+        for i in range(len(nonOutputNeur)):
+            neuron = nonOutputNeur[i]
+            phenotype_isOut.append(0)
+            phenotype_bias.append(neuron.bias)
+            phenotype_address.append(nonOutputNeuronAddress[i])
+            # neuronPosition = nonOutputNeur[i].position
+            for j in range(len(neuron.dendrites)):
+                dendrite = neuron.dendrites[j]
+                dendPos = dendrite.position
+                next
+
+    def getClosest(self, numNonOutNeur, nonOutNeur, isOut, dendPos):
+        pass

@@ -1,4 +1,11 @@
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
 class Config:
+
+    num_inputs: list[int]
+    num_outputs: list[int]
 
     # NN_max
     max_num_neurons: int = 30

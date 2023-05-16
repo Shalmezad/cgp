@@ -6,8 +6,14 @@ from cgp.problems import GlassProblem
 
 problem = GlassProblem()
 
-config = Config()
+config = Config(
+    num_inputs=[problem.numInputs()],
+    num_outputs=[problem.numOutputs()]
+)
 brain_builder = BrainBuilder(config)
 brain = brain_builder.build()
 
-brain.update()
+for _ in range(10):
+    brain = brain.update()
+
+ann = brain.extractANN(1, 1)
