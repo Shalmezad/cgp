@@ -24,10 +24,16 @@ ann = brain.extractANN(0)
 for _ in range(2):
     brain = brain.update()
 
+# Problem 1:
 ann = brain.extractANN(0)
-
 training_in, expected_out = problem_1.trainingSet()
 actual_out = ann.forward(training_in)
-print(actual_out)
 fitness = problem_1.measureFitness(expected_out, actual_out)
+print(fitness)
+
+# Problem 2:
+ann = brain.extractANN(1)
+training_in, expected_out = problem_2.trainingSet()
+actual_out = ann.forward(training_in)
+fitness = problem_2.measureFitness(expected_out, actual_out)
 print(fitness)

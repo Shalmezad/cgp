@@ -12,6 +12,7 @@ class ANN:
     address: list[int]
     numConnectionAddress: list[int]
     outputAddresses: list[int]
+    inputIdxes: list[int]
 
     def forward(self, input):
         result = np.asarray([
@@ -20,14 +21,12 @@ class ANN:
         return result
 
     def evaluateLayer(self, address, input):
-        num_inputs = input.shape[1]
-        if address < num_inputs:
-            result = input[:, address]
-            return result
-        min_con_address = self.address[0]
-        if address < min_con_address:
-            result = np.zeros_like(input[:, 0])
-            return result
+        if address < len(self.inputIdxes):
+            inputIdx = self.inputIdxes[address]
+            if inputIdx == -1:
+                return np.zeros_like(input[:, 0])
+            else:
+                return input[:, inputIdx]
         # Ok, it's a node
         # *in theory*, this should just be:
         idx = self.address.index(address)

@@ -286,6 +286,15 @@ class Brain:
             if neuron.out == problem + 1:
                 phenotype_output_addresses.append(outputNeuronAddress[i])
         # END for i in range(len(outputNeurons)):
+        # Figure out out input idxes:
+        phenotype_inputIdxes = []
+        for i in range(len(self.config.num_inputs)):
+            count = self.config.num_inputs[i]
+            if i == problem:
+                phenotype_inputIdxes += list(range(count))
+            else:
+                phenotype_inputIdxes += ([-1] * count)
+
         return ANN(
             phenotype_connection_addresses,
             phenotype_weights,
@@ -293,7 +302,8 @@ class Brain:
             phenotype_bias,
             phenotype_address,
             phenotype_num_connection_address,
-            phenotype_output_addresses
+            phenotype_output_addresses,
+            phenotype_inputIdxes
         )
 
     def getClosest(self,
