@@ -26,7 +26,7 @@ class Brain:
 
     config: Config
 
-    def update(self) -> Brain:
+    def update(self, isPre: bool) -> Brain:
         newNeurons = []
         nonOutputNeurons = []
         outputNeurons = []
@@ -39,11 +39,12 @@ class Brain:
         max_non_output_neurons = (self.config.max_num_neurons -
                                   len(outputNeurons))
         for neuron in nonOutputNeurons:
-            health, positionX, positionY, bias = self.runSoma(neuron)
+            health, positionX, positionY, bias = self.runSoma(neuron, isPre)
             updatedNeuron = self.runAllDendrites(neuron,
                                                  Point2d(positionX, positionY),
                                                  health,
-                                                 bias)
+                                                 bias,
+                                                 isPre)
             if (updatedNeuron.health >
                     self.config.neuron_health_death_threshold):
                 # Neuron survives
@@ -58,11 +59,12 @@ class Brain:
                 if len(newNeurons) >= max_non_output_neurons:
                     break
         for outputNeuron in outputNeurons:
-            health, positionX, positionY, bias = self.runSoma(neuron)
+            health, positionX, positionY, bias = self.runSoma(neuron, isPre)
             updatedNeuron = self.runAllDendrites(outputNeuron,
                                                  Point2d(positionX, positionY),
                                                  health,
-                                                 bias)
+                                                 bias,
+                                                 isPre)
             newNeurons.append(updatedNeuron)
         # Build the new brain:
         return Brain(
@@ -73,15 +75,18 @@ class Brain:
             self.config
         )
 
-    def runSoma(self, neuron: Neuron) -> tuple[float, float, float, float]:
+    def runSoma(self,
+                neuron: Neuron,
+                isPre: bool) -> tuple[float, float, float, float]:
         somaProgramInputs = neuron.programInputs()
         somaProgramOutputs = self.somaProgram.evaluate(somaProgramInputs)
-        updatedNeuron = self.updateNeuron(neuron, somaProgramOutputs[0])
+        updatedNeuron = self.updateNeuron(neuron, somaProgramOutputs[0], isPre)
         return updatedNeuron
 
     def updateNeuron(self,
                      neuron: Neuron,
-                     somaProgramOutputs: npt.NDArray[np.float64]
+                     somaProgramOutputs: npt.NDArray[np.float64],
+                     isPre: bool
                      ) -> tuple[float, float, float, float]:
         parentHealth = neuron.health
         parentPositionX = neuron.position.x
@@ -92,9 +97,18 @@ class Brain:
         positionY = somaProgramOutputs[2]
         bias = somaProgramOutputs[3]
         # Calculate our increment
-        healthIncrement = 0.1
-        positionIncrement = 0.1
-        biasIncrement = 0.1
+        healthIncrement = (
+            self.config.soma_health_increment_pre
+            if isPre
+            else self.config.soma_health_increment_while)
+        positionIncrement = (
+            self.config.soma_position_increment_pre
+            if isPre
+            else self.config.soma_position_increment_while)
+        biasIncrement = (
+            self.config.soma_bias_increment_pre
+            if isPre
+            else self.config.soma_bias_increment_while)
         # Apply the increment
         health = parentHealth + MathUtil.sign(health) * healthIncrement
         positionX = parentPositionX + (
@@ -112,7 +126,8 @@ class Brain:
                         neuron: Neuron,
                         newSomaPosition: Point2d,
                         newSomaHealth: float,
-                        newSomaBias: float) -> Neuron:
+                        newSomaBias: float,
+                        isPre: bool) -> Neuron:
         # We're going to rearrange this slightly
         # 1: Loop through all existing dendrites, and update:
         new_dendrites = []
@@ -133,7 +148,8 @@ class Brain:
                 np.asarray(inputs).reshape((1, -1)))
             updated_dendrite = self.runDendrite(neuron,
                                                 dendrite,
-                                                dendrite_program_outputs[0])
+                                                dendrite_program_outputs[0],
+                                                isPre)
             if (updated_dendrite.health >
                     self.config.dendrite_health_death_threshold):
                 new_dendrites.append(updated_dendrite)
@@ -162,7 +178,8 @@ class Brain:
             self,
             neuron: Neuron,
             dendrite: Dendrite,
-            dendriteOutputs: npt.NDArray[np.float64]) -> Dendrite:
+            dendriteOutputs: npt.NDArray[np.float64],
+            isPre: bool) -> Dendrite:
         parentHealth = dendrite.health
         parentPositionX = dendrite.position.x
         parentPositionY = dendrite.position.y
@@ -172,9 +189,19 @@ class Brain:
         positionX = dendriteOutputs[2]
         positionY = dendriteOutputs[3]
         # Calculate our increment
-        healthIncrement = 0.1
-        weightIcrement = 0.1
-        positionIncrement = 0.1
+
+        healthIncrement = (
+            self.config.dendrite_health_increment_pre
+            if isPre
+            else self.config.dendrite_health_increment_while)
+        weightIcrement = (
+            self.config.dendrite_weight_increment_pre
+            if isPre
+            else self.config.dendrite_weight_increment_while)
+        positionIncrement = (
+            self.config.dendrite_position_increment_pre
+            if isPre
+            else self.config.dendrite_position_increment_while)
 
         health = parentHealth + MathUtil.sign(health) * healthIncrement
         weight = parentWeight + MathUtil.sign(weight) * weightIcrement
@@ -211,7 +238,7 @@ class Brain:
             parentNeuron.out
         )
 
-    def extractANN(self, problem):
+    def extractANN(self, problem: int) -> ANN:
         numberInputs = len(self.inputLocations)
         nonOutputNeur: list[Neuron] = []
         nonOutputNeuronAddress = []
@@ -220,8 +247,8 @@ class Brain:
         phenotype_isOut = []
         phenotype_bias = []
         phenotype_address = []
-        phenotype_connection_addresses = []
-        phenotype_weights = []
+        phenotype_connection_addresses: list[list[int]] = []
+        phenotype_weights: list[list[float]] = []
         phenotype_num_connection_address = []
         phenotype_output_addresses = []
         for i in range(len(self.neurons)):
@@ -257,7 +284,6 @@ class Brain:
                 phenotype_connection_addresses[i].append(addressClosest)
                 phenotype_weights[i].append(dendrite.weight)
             phenotype_num_connection_address.append(len(neuron.dendrites))
-            # TODO: Finish coding me
         # END for i in range(len(nonOutputNeur)):
         for i in range(len(outputNeurons)):
             il = i + len(nonOutputNeur)

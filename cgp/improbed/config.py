@@ -28,3 +28,27 @@ class Config:
     dendrite_health_death_threshold: float = -0.6
     # DH_birth
     dendrite_health_birth_threshold: float = 0.2
+
+    # \delta_sh
+    soma_health_increment_pre: float = 0.1
+    soma_health_increment_while: float = 0.01
+
+    # \delta_sp
+    soma_position_increment_pre: float = 0.1
+    soma_position_increment_while: float = 0.01
+
+    # \delta_sb
+    soma_bias_increment_pre: float = 0.07
+    soma_bias_increment_while: float = 0.0402
+
+    # \delta_dh
+    dendrite_health_increment_pre: float = 0.1
+    dendrite_health_increment_while: float = 0.01
+
+    # \delta_dp
+    dendrite_position_increment_pre: float = 0.2032
+    dendrite_position_increment_while: float = 0.01
+
+    # \delta_dw
+    dendrite_weight_increment_pre: float = 0.1
+    dendrite_weight_increment_while: float = 0.02029

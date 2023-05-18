@@ -22,7 +22,7 @@ brain = brain_builder.build()
 ann = brain.extractANN(0)
 
 for _ in range(2):
-    brain = brain.update()
+    brain = brain.update(True)
 
 # Problem 1:
 ann = brain.extractANN(0)

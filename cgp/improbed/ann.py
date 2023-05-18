@@ -36,7 +36,8 @@ class ANN:
             print("Connections: {}".format(connections))
             raise ValueError("Address in self.connections")
         weights = np.asarray(self.weights[idx]).reshape((1, -1))
-        values = np.asarray([self.evaluateLayer(x, input) for x in connections])
+        values = np.asarray([
+            self.evaluateLayer(x, input) for x in connections])
         base_values_no_sum = values * weights.T
         base_value = np.sum(base_values_no_sum, axis=0)
         result = base_value + self.bias[idx]
