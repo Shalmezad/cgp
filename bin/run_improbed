@@ -1,39 +1,52 @@
 #!/usr/bin/env python3
 
-from cgp.improbed import BrainBuilder, Config
-from cgp.problems import IrisProblem, GlassProblem
+from cgp.improbed import Brain, BrainBuilder, Config
+from cgp.problems import IrisProblem, GlassProblem, ProblemBase
 
-problem_1 = IrisProblem()
-problem_2 = GlassProblem()
+
+def brainFitness(brain: Brain,
+                 config: Config,
+                 problems: list[ProblemBase]) -> float:
+    newBrain: Brain = brain
+    for _ in range(config.num_steps_pre_epoch):
+        newBrain = newBrain.update(True)
+    tf_prev = 0
+    for e in range(config.num_epochs):
+        for _ in range(config.num_steps_during_epoch):
+            newBrain = newBrain.update(False)
+        tf = 0
+        for pIdx in range(len(problems)):
+            problem = problems[pIdx]
+            ann = newBrain.extractANN(pIdx)
+            training_in, expected_out = problem.trainingSet()
+            actual_out = ann.forward(training_in)
+            fitness = problem.measureFitness(expected_out, actual_out)
+            tf = tf + fitness / len(problems)
+        if tf < tf_prev:
+            return tf_prev
+        else:
+            tf_prev = tf
+    return tf_prev
+
+
+problems = [
+    IrisProblem(),
+    GlassProblem()
+]
 
 config = Config(
     num_inputs=[
-        problem_1.numInputs(),
-        problem_2.numInputs()
+        problem.numInputs()
+        for problem in problems
     ],
     num_outputs=[
-        problem_1.numOutputs(),
-        problem_2.numOutputs()
+        problem.numOutputs()
+        for problem in problems
     ]
 )
+
 brain_builder = BrainBuilder(config)
 brain = brain_builder.build()
 
-ann = brain.extractANN(0)
-
-for _ in range(2):
-    brain = brain.update(True)
-
-# Problem 1:
-ann = brain.extractANN(0)
-training_in, expected_out = problem_1.trainingSet()
-actual_out = ann.forward(training_in)
-fitness = problem_1.measureFitness(expected_out, actual_out)
-print(fitness)
-
-# Problem 2:
-ann = brain.extractANN(1)
-training_in, expected_out = problem_2.trainingSet()
-actual_out = ann.forward(training_in)
-fitness = problem_2.measureFitness(expected_out, actual_out)
-print(fitness)
+f = brainFitness(brain, config, problems)
+print(f)

@@ -56,3 +56,11 @@ class Config:
     # \delta_dw
     dendrite_weight_increment_pre: float = 0.1
     dendrite_weight_increment_while: float = 0.02029
+
+    # NDS_pre
+    num_steps_pre_epoch: int = 8
+    # NDS_while
+    num_steps_during_epoch: int = 3
+
+    # N_ep
+    num_epochs: int = 8
