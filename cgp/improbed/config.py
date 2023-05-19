@@ -20,14 +20,18 @@ class Config:
     initial_num_dendrites: int = 5
 
     # NH_death
-    neuron_health_death_threshold: float = -0.6
+    neuron_health_death_threshold_pre: float = -0.6
+    neuron_health_death_threshold_while: float = -0.58
     # NH_birth
-    neuron_health_birth_threshold: float = 0.2
+    neuron_health_birth_threshold_pre: float = 0.308
+    neuron_health_birth_threshold_while: float = 0.8
 
     # DH_death
-    dendrite_health_death_threshold: float = -0.6
+    dendrite_health_death_threshold_pre: float = -0.404772
+    dendrite_health_death_threshold_while: float = -0.38
     # DH_birth
-    dendrite_health_birth_threshold: float = 0.2
+    dendrite_health_birth_threshold_pre: float = -0.2012
+    dendrite_health_birth_threshold_while: float = 0.85
 
     # \delta_sh
     soma_health_increment_pre: float = 0.1

@@ -38,6 +38,16 @@ class Brain:
         # Process non-output neurons:
         max_non_output_neurons = (self.config.max_num_neurons -
                                   len(outputNeurons))
+
+        death_threshold = (
+            self.config.neuron_health_death_threshold_pre
+            if isPre
+            else self.config.neuron_health_death_threshold_while)
+        birth_threshold = (
+            self.config.neuron_health_birth_threshold_pre
+            if isPre
+            else self.config.neuron_health_birth_threshold_while)
+
         for neuron in nonOutputNeurons:
             health, positionX, positionY, bias = self.runSoma(neuron, isPre)
             updatedNeuron = self.runAllDendrites(neuron,
@@ -45,14 +55,12 @@ class Brain:
                                                  health,
                                                  bias,
                                                  isPre)
-            if (updatedNeuron.health >
-                    self.config.neuron_health_death_threshold):
+            if (updatedNeuron.health > death_threshold):
                 # Neuron survives
                 newNeurons.append(updatedNeuron)
                 if len(newNeurons) >= max_non_output_neurons:
                     break
-            if (updatedNeuron.health >
-                    self.config.neuron_health_birth_threshold):
+            if (updatedNeuron.health > birth_threshold):
                 # Neuron replicates
                 replicatedNeuron = self.createNewNeuron(updatedNeuron)
                 newNeurons.append(replicatedNeuron)
@@ -132,7 +140,16 @@ class Brain:
         # 1: Loop through all existing dendrites, and update:
         new_dendrites = []
         base_dendrites = neuron.dendrites
-        if neuron.health > self.config.dendrite_health_birth_threshold:
+        birth_threshold = (
+            self.config.dendrite_health_birth_threshold_pre
+            if isPre
+            else self.config.dendrite_health_birth_threshold_while)
+        death_threshold = (
+            self.config.dendrite_health_death_threshold_pre
+            if isPre
+            else self.config.dendrite_health_death_threshold_while)
+
+        if neuron.health > birth_threshold:
             base_dendrites.append(self.generateDendrite(neuron))
         for dendrite in base_dendrites:
             inputs = []
@@ -150,8 +167,7 @@ class Brain:
                                                 dendrite,
                                                 dendrite_program_outputs[0],
                                                 isPre)
-            if (updated_dendrite.health >
-                    self.config.dendrite_health_death_threshold):
+            if (updated_dendrite.health > death_threshold):
                 new_dendrites.append(updated_dendrite)
                 if len(new_dendrites) >= self.config.max_num_dendrites:
                     break
