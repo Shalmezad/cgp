@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from cgp.improbed import Brain, BrainBuilder, Config
+from cgp.improbed import Brain, BrainBuilder, BrainMutator, Config
 from cgp.problems import IrisProblem, GlassProblem, ProblemBase
 
 
@@ -46,7 +46,43 @@ config = Config(
 )
 
 brain_builder = BrainBuilder(config)
-brain = brain_builder.build()
+brain_mutator = BrainMutator(config)
 
-f = brainFitness(brain, config, problems)
-print(f)
+lamb = 5
+
+print("Pre Generations")
+individuals = []
+for _ in range(1+lamb):
+    individuals.append(brain_builder.build())
+
+print("\tMeasuring fitnesses")
+
+fitnesses = []
+for idx, brain in enumerate(individuals):
+    print("\tEvaluating: {}".format(idx))
+    fitness = brainFitness(brain, config, problems)
+    fitnesses.append(fitness)
+
+# Find the highest:
+bestIdx = fitnesses.index(min(fitnesses))
+parent = individuals[bestIdx]
+
+for generation in range(500):
+    print("Generation: {}".format(generation))
+    # Make the offspring:
+    offspring = []
+    for _ in range(lamb):
+        offspring.append(brain_mutator.mutate_brain(parent))
+    # Measure the parent fitness and offspring fitness:
+    parent_fitness = brainFitness(parent, config, problems)
+    offspring_fitnesses = [
+        brainFitness(brain, config, problems) for brain in offspring]
+
+    bestOffspringFitness = min(offspring_fitnesses)
+    bestOffspringIdx = offspring_fitnesses.index(bestOffspringFitness)
+
+    if bestOffspringFitness <= parent_fitness:
+        parent = offspring[bestOffspringIdx]
+
+    new_parent_fitness = brainFitness(parent, config, problems)
+    print("\tFitness: {}".format(new_parent_fitness))
