@@ -1,17 +1,33 @@
 #!/usr/bin/env python3
 
+import logging
+import sys
+
 from cgp.improbed import Brain, BrainBuilder, BrainMutator, Config
 from cgp.problems import IrisProblem, GlassProblem, ProblemBase
+
+
+root = logging.getLogger()
+root.setLevel(logging.DEBUG)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+root.addHandler(handler)
 
 
 def brainFitness(brain: Brain,
                  config: Config,
                  problems: list[ProblemBase]) -> float:
     newBrain: Brain = brain
-    for _ in range(config.num_steps_pre_epoch):
+    for e in range(config.num_steps_pre_epoch):
+        logging.debug("\tPre epoch: {}".format(e))
         newBrain = newBrain.update(True)
-    tf_prev = 0
+    tf_prev = 1000000000
     for e in range(config.num_epochs):
+        logging.debug("\tEpoch: {}".format(e))
         for _ in range(config.num_steps_during_epoch):
             newBrain = newBrain.update(False)
         tf = 0
@@ -22,7 +38,9 @@ def brainFitness(brain: Brain,
             actual_out = ann.forward(training_in)
             fitness = problem.measureFitness(expected_out, actual_out)
             tf = tf + fitness / len(problems)
-        if tf < tf_prev:
+        logging.debug("\t\ttf: {}".format(tf))
+        if tf >= tf_prev:
+            logging.debug("\tBailing early, fitness did not improve")
             return tf_prev
         else:
             tf_prev = tf
@@ -50,16 +68,16 @@ brain_mutator = BrainMutator(config)
 
 lamb = 5
 
-print("Pre Generations")
+logging.info("Pre Generations")
 individuals = []
 for _ in range(1+lamb):
     individuals.append(brain_builder.build())
 
-print("\tMeasuring fitnesses")
+logging.info("\tMeasuring fitnesses")
 
 fitnesses = []
 for idx, brain in enumerate(individuals):
-    print("\tEvaluating: {}".format(idx))
+    logging.info("\tEvaluating: {}".format(idx))
     fitness = brainFitness(brain, config, problems)
     fitnesses.append(fitness)
 
@@ -68,15 +86,17 @@ bestIdx = fitnesses.index(min(fitnesses))
 parent = individuals[bestIdx]
 
 for generation in range(500):
-    print("Generation: {}".format(generation))
+    logging.info("Generation: {}".format(generation))
     # Make the offspring:
     offspring = []
     for _ in range(lamb):
         offspring.append(brain_mutator.mutate_brain(parent))
     # Measure the parent fitness and offspring fitness:
     parent_fitness = brainFitness(parent, config, problems)
+    logging.debug("\t\tParent fitness: {}".format(parent_fitness))
     offspring_fitnesses = [
         brainFitness(brain, config, problems) for brain in offspring]
+    logging.debug("\t\tOffspring fitnesses: {}".format(offspring_fitnesses))
 
     bestOffspringFitness = min(offspring_fitnesses)
     bestOffspringIdx = offspring_fitnesses.index(bestOffspringFitness)
@@ -85,4 +105,4 @@ for generation in range(500):
         parent = offspring[bestOffspringIdx]
 
     new_parent_fitness = brainFitness(parent, config, problems)
-    print("\tFitness: {}".format(new_parent_fitness))
+    logging.info("\tFitness: {}".format(new_parent_fitness))

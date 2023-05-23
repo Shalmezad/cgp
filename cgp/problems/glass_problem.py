@@ -65,13 +65,19 @@ class GlassProblem(ProblemBase):
     def measureFitness(self,
                        expected_output: npt.NDArray[np.float64],
                        actual_output:  npt.NDArray[np.float64]) -> float:
-        omax = np.max(actual_output)
-        actual_output = actual_output / omax
+        with np.errstate(all='raise'):
+            try:
+                omax = np.max(actual_output)
+                actual_output = actual_output / omax
 
-        true_class_logits = actual_output[
-            np.arange(len(actual_output)),
-            expected_output]
-        cross_entropy = - true_class_logits + np.log(
-            np.sum(np.exp(actual_output), axis=-1))
-        # return cross_entropy
-        return np.mean(cross_entropy)  # type: ignore
+                true_class_logits = actual_output[
+                    np.arange(len(actual_output)),
+                    expected_output]
+                cross_entropy = - true_class_logits + np.log(
+                    np.sum(np.exp(actual_output), axis=-1))
+                # return cross_entropy
+                return np.mean(cross_entropy)  # type: ignore
+            except FloatingPointError:
+                print("Actual output: {}".format(actual_output))
+                print("Expected output: {}".format(expected_output))
+                raise
