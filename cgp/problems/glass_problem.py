@@ -13,7 +13,7 @@ class GlassProblem(ProblemBase):
     https://archive.ics.uci.edu/ml/datasets/glass+identification
     """
 
-    def __init__(self) -> None:
+    def __init__(self, normalizeInputs: bool = False) -> None:
         super().__init__()
         self._data = []
         # Load the dataset:
@@ -29,16 +29,17 @@ class GlassProblem(ProblemBase):
                     self._data.append(data_item)
 
         # Need to normalize:
-        max_input = [0] * 9
-        for i, o in self._data:
-            for idx in range(9):
-                if i[idx] > max_input[idx]:
-                    max_input[idx] = i[idx]
+        if normalizeInputs:
+            max_input = [0] * 9
+            for i, o in self._data:
+                for idx in range(9):
+                    if i[idx] > max_input[idx]:
+                        max_input[idx] = i[idx]
 
-        for idx in range(len(self._data)):
-            i, o = self._data[idx]
-            i = np.asarray(i) / np.asarray(max_input)
-            self._data[idx] = (i, o)
+            for idx in range(len(self._data)):
+                i, o = self._data[idx]
+                i = np.asarray(i) / np.asarray(max_input)
+                self._data[idx] = (i, o)
 
         # Now the fun part:
         # We need to split between training and validation:

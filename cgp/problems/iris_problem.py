@@ -9,7 +9,7 @@ from .problem_base import ProblemBase
 
 class IrisProblem(ProblemBase):
 
-    def __init__(self) -> None:
+    def __init__(self, normalizeInputs: bool = False) -> None:
         super().__init__()
 
         self._classes = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
@@ -30,17 +30,18 @@ class IrisProblem(ProblemBase):
                     data_item = (input, output)
                     self._data.append(data_item)
 
-        # Need to normalize:
-        max_input = [0, 0, 0, 0]
-        for i, o in self._data:
-            for idx in range(4):
-                if i[idx] > max_input[idx]:
-                    max_input[idx] = i[idx]
+        if normalizeInputs:
+            # Need to normalize:
+            max_input = [0, 0, 0, 0]
+            for i, o in self._data:
+                for idx in range(4):
+                    if i[idx] > max_input[idx]:
+                        max_input[idx] = i[idx]
 
-        for idx in range(len(self._data)):
-            i, o = self._data[idx]
-            i = np.asarray(i) / np.asarray(max_input)
-            self._data[idx] = (i, o)
+            for idx in range(len(self._data)):
+                i, o = self._data[idx]
+                i = np.asarray(i) / np.asarray(max_input)
+                self._data[idx] = (i, o)
 
         # Now the fun part:
         # We need to split between training and validation:
