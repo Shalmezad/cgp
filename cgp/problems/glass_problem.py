@@ -28,6 +28,18 @@ class GlassProblem(ProblemBase):
                     data_item = (input, output)
                     self._data.append(data_item)
 
+        # Need to normalize:
+        max_input = [0] * 9
+        for i, o in self._data:
+            for idx in range(9):
+                if i[idx] > max_input[idx]:
+                    max_input[idx] = i[idx]
+
+        for idx in range(len(self._data)):
+            i, o = self._data[idx]
+            i = np.asarray(i) / np.asarray(max_input)
+            self._data[idx] = (i, o)
+
         # Now the fun part:
         # We need to split between training and validation:
         # 150 data items:
@@ -68,7 +80,8 @@ class GlassProblem(ProblemBase):
         with np.errstate(all='raise'):
             try:
                 omax = np.max(actual_output)
-                actual_output = actual_output / omax
+                if omax != 0:
+                    actual_output = actual_output / omax
 
                 true_class_logits = actual_output[
                     np.arange(len(actual_output)),
@@ -78,6 +91,7 @@ class GlassProblem(ProblemBase):
                 # return cross_entropy
                 return np.mean(cross_entropy)  # type: ignore
             except FloatingPointError:
+                print("Max: {}".format(np.max(actual_output)))
                 print("Actual output: {}".format(actual_output))
                 print("Expected output: {}".format(expected_output))
                 raise
