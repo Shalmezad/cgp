@@ -18,7 +18,9 @@ class Neuron:
     # 1-N if it's an output neuron
     out: int
 
-    def programInputs(self) -> npt.NDArray[np.float64]:
+    def programInputs(
+            self,
+            performance: float = 0.0) -> npt.NDArray[np.float64]:
         inputs = []
         inputs.append(self.health)
         inputs.append(self.position.x)
@@ -29,6 +31,7 @@ class Neuron:
         inputs.append(avgPosition.y)
         inputs.append(self.getAvgDendriteWeight())
         inputs.append(self.getAvgDendriteHealth())
+        inputs.append(performance)
         return np.asarray(inputs).reshape((1, -1))
 
     def getAvgDendritePosition(self) -> Point2d:

@@ -12,14 +12,14 @@ class BrainBuilder:
     def __init__(self, config: Config) -> None:
         op_set_key = OpSets.IMPROBED_2022_OPSET_KEY
         soma_builder_config = GeneBuilderConfig(
-            8,
+            9,
             200,
             4,
             op_set_key
         )
         self.soma_builder = GeneBuilder(soma_builder_config)
         dendrite_builder_config = GeneBuilderConfig(
-            8,
+            9,
             200,
             4,
             op_set_key

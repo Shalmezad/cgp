@@ -26,10 +26,10 @@ class Brain:
 
     config: Config
 
-    def update(self, isPre: bool) -> Brain:
+    def update(self, isPre: bool, fitnessesPrev: list[float] = []) -> Brain:
         newNeurons = []
         nonOutputNeurons = []
-        outputNeurons = []
+        outputNeurons: list[Neuron] = []
         for neuron in self.neurons:
             if neuron.out == 0:
                 nonOutputNeurons.append(neuron)
@@ -48,13 +48,21 @@ class Brain:
             if isPre
             else self.config.neuron_health_birth_threshold_while)
 
+        avgPerformance = 0.0
+        if len(fitnessesPrev) > 0:
+            avgPerformance = sum(fitnessesPrev) / len(fitnessesPrev)
+
         for neuron in nonOutputNeurons:
-            health, positionX, positionY, bias = self.runSoma(neuron, isPre)
+            health, positionX, positionY, bias = self.runSoma(
+                neuron,
+                isPre,
+                avgPerformance)
             updatedNeuron = self.runAllDendrites(neuron,
                                                  Point2d(positionX, positionY),
                                                  health,
                                                  bias,
-                                                 isPre)
+                                                 isPre,
+                                                 avgPerformance)
             if (updatedNeuron.health > death_threshold):
                 # Neuron survives
                 newNeurons.append(updatedNeuron)
@@ -67,12 +75,17 @@ class Brain:
                 if len(newNeurons) >= max_non_output_neurons:
                     break
         for outputNeuron in outputNeurons:
-            health, positionX, positionY, bias = self.runSoma(neuron, isPre)
+            performance = 0.0
+            if len(fitnessesPrev) > 0:
+                performance = fitnessesPrev[outputNeuron.out - 1]
+            health, positionX, positionY, bias = self.runSoma(
+                neuron, isPre, performance)
             updatedNeuron = self.runAllDendrites(outputNeuron,
                                                  Point2d(positionX, positionY),
                                                  health,
                                                  bias,
-                                                 isPre)
+                                                 isPre,
+                                                 performance)
             newNeurons.append(updatedNeuron)
         # Build the new brain:
         return Brain(
@@ -85,8 +98,9 @@ class Brain:
 
     def runSoma(self,
                 neuron: Neuron,
-                isPre: bool) -> tuple[float, float, float, float]:
-        somaProgramInputs = neuron.programInputs()
+                isPre: bool,
+                performance: float = 0.0) -> tuple[float, float, float, float]:
+        somaProgramInputs = neuron.programInputs(performance)
         somaProgramOutputs = self.somaProgram.evaluate(somaProgramInputs)
         updatedNeuron = self.updateNeuron(neuron, somaProgramOutputs[0], isPre)
         return updatedNeuron
@@ -135,7 +149,8 @@ class Brain:
                         newSomaPosition: Point2d,
                         newSomaHealth: float,
                         newSomaBias: float,
-                        isPre: bool) -> Neuron:
+                        isPre: bool,
+                        performance: float) -> Neuron:
         # We're going to rearrange this slightly
         # 1: Loop through all existing dendrites, and update:
         new_dendrites = []
@@ -161,6 +176,7 @@ class Brain:
             inputs.append(dendrite.weight)
             inputs.append(dendrite.position.x)
             inputs.append(dendrite.position.y)
+            inputs.append(performance)
             dendrite_program_outputs = self.dendriteProgram.evaluate(
                 np.asarray(inputs).reshape((1, -1)))
             updated_dendrite = self.runDendrite(neuron,
