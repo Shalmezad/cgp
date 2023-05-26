@@ -11,10 +11,7 @@ class TestOpSets(unittest.TestCase):
         in1 = np.ones(100)
         in2 = np.ones(100)
         in3 = np.ones(100)
-        opsets = [
-            OpSets.IMPROBED_2022,
-            OpSets.GPTP_II
-        ]
+        opsets = OpSets.OPSET_DICT.values()
         for _, opset in enumerate(opsets):
             for _, op in enumerate(opset):
                 lamb = op[1]
@@ -25,13 +22,13 @@ class TestOpSets(unittest.TestCase):
         in1 = np.ones(100)
         in2 = np.zeros(100)
         in3 = np.zeros(100)
-        OpSets.SAFE_DIVISION[1](in1, in2, in3)
+        OpSets._SAFE_DIVISION[1](in1, in2, in3)
 
     def test_safe_log(self) -> None:
         in1 = np.zeros(100)
         in2 = np.zeros(100)
         in3 = np.zeros(100)
-        OpSets.SAFE_LOG[1](in1, in2, in3)
+        OpSets._SAFE_LOG[1](in1, in2, in3)
 
 
 if __name__ == '__main__':

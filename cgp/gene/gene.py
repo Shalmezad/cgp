@@ -11,7 +11,7 @@ class Gene:
     num_inputs: int
     middlenodes: list[tuple[int, int, int, int]]
     output_idxes: list[int]
-    ops: list[OpSets.NamedOp]
+    opset_key: OpSets.OpsetKey
 
     def evaluate(
             self,
@@ -49,11 +49,12 @@ class Gene:
         in1 = self.evaluateNode(in1idx, input)
         in2 = self.evaluateNode(in2idx, input)
         in3 = self.evaluateNode(in3idx, input)
+        ops = OpSets.OPSET_DICT[self.opset_key]
 
-        if op_id > len(self.ops):
+        if op_id > len(ops):
             raise ValueError("Unknown operator: {}".format(op_id))
 
-        op = self.ops[op_id]
+        op = ops[op_id]
         try:
             result = op[1](in1, in2, in3)
             result[np.isnan(result)] = 0
@@ -77,11 +78,12 @@ class Gene:
             in1 = self.nodeToHumanFormula(in1idx)
             in2 = self.nodeToHumanFormula(in2idx)
             in3 = self.nodeToHumanFormula(in3idx)
+            ops = OpSets.OPSET_DICT[self.opset_key]
 
-            if op_id > len(self.ops):
+            if op_id > len(ops):
                 raise ValueError("Unknown operator: {}".format(op_id))
 
-            op = self.ops[op_id]
+            op = ops[op_id]
             return op[0](in1, in2, in3)
 
     def toHumanFormula(self) -> list[str]:

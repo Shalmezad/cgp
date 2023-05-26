@@ -10,7 +10,7 @@ class GeneBuilderConfig:
     num_inputs: int
     num_middlenodes: int
     num_outputs: int
-    ops: list[OpSets.NamedOp]
+    opset_key: OpSets.OpsetKey
 
 
 class GeneBuilder:
@@ -25,12 +25,17 @@ class GeneBuilder:
         output_idxes = [
             random.randrange(output_idx_range)
             for x in range(self.config.num_outputs)]
-        return Gene(num_inputs, middlenodes, output_idxes, self.config.ops)
+        return Gene(
+            num_inputs,
+            middlenodes,
+            output_idxes,
+            self.config.opset_key)
 
     def makeMiddleNode(self, middleIdx: int) -> tuple[int, int, int, int]:
         maxIdx = self.config.num_inputs + middleIdx
         in1idx = random.randrange(maxIdx)
         in2idx = random.randrange(maxIdx)
         in3idx = random.randrange(maxIdx)
-        op = random.randrange(len(self.config.ops))
+        ops = OpSets.OPSET_DICT[self.config.opset_key]
+        op = random.randrange(len(ops))
         return (in1idx, in2idx, in3idx, op)

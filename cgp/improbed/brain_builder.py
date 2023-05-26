@@ -10,19 +10,19 @@ from .point2d import Point2d
 
 class BrainBuilder:
     def __init__(self, config: Config) -> None:
-        op_set = OpSets.IMPROBED_2022
+        op_set_key = OpSets.IMPROBED_2022_OPSET_KEY
         soma_builder_config = GeneBuilderConfig(
             8,
             200,
             4,
-            op_set
+            op_set_key
         )
         self.soma_builder = GeneBuilder(soma_builder_config)
         dendrite_builder_config = GeneBuilderConfig(
             8,
             200,
             4,
-            op_set
+            op_set_key
         )
         self.dendrite_builder = GeneBuilder(dendrite_builder_config)
         self.config = config

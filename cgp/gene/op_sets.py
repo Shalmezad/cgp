@@ -1,10 +1,11 @@
 import math
 import numpy as np
 import numpy.typing as npt
-from typing import Callable
+from typing import Callable, NewType
 
 
 class OpSets:
+    OpsetKey = NewType("OpsetKey", str)
     OpName = Callable[
         [
             str,
@@ -21,22 +22,25 @@ class OpSets:
         npt.NDArray[np.float64]]
     NamedOp = tuple[OpName, OpFunction]
 
-    SAFE_DIVISION: NamedOp = (   # /
+    _SAFE_DIVISION: NamedOp = (   # /
         lambda in1, in2, in3: "/({}, {})".format(in1, in2),
         lambda in1, in2, in3: np.divide(
             in1, in2, out=in1, where=in2 != 0)
     )
-    SAFE_LOG: NamedOp = (   # log
+    _SAFE_LOG: NamedOp = (   # log
         lambda in1, in2, in3: "log({})".format(in1),
         lambda in1, in2, in3: np.log(  # type: ignore
             np.absolute(in1), out=np.zeros_like(in1), where=in1 != 0)
     )
 
+    IMPROBED_2022_OPSET_KEY: OpsetKey = OpsetKey("IMPROBED_2022_OPSET_KEY")
+    GPTP_II_OPSET_KEY: OpsetKey = OpsetKey("GPTP_II_OPSET_KEY")
+
     # IMPROBED: Multiple Problem-Solving Brian
     #   via Evolved Developmental Programs
     # Julian Francis Miller
     # Artificial Life 27: 300–335 (2022) https://doi.org/10.1162/artl_a_00346
-    IMPROBED_2022: list[NamedOp] = [
+    _IMPROBED_2022: list[NamedOp] = [
         (   # 0 abs
             lambda in1, in2, in3: "|{}|".format(in1),
             lambda in1, in2, in3: np.absolute(in1)
@@ -139,7 +143,7 @@ class OpSets:
     # GPTP II
     # Cartesian Genetic Programming and the Post Docking Filtering Problem
     # A. Beatriz Garmendia-Doval, Julian F. Miller, S. David Morley
-    GPTP_II: list[NamedOp] = [
+    _GPTP_II: list[NamedOp] = [
         (   # +
             lambda in1, in2, in3: "+({}, {})".format(in1, in2),
             lambda in1, in2, in3: in1 + in2
@@ -152,8 +156,8 @@ class OpSets:
             lambda in1, in2, in3: "*({}, {})".format(in1, in2),
             lambda in1, in2, in3: in1 * in2
         ),
-        SAFE_DIVISION,
-        SAFE_LOG,
+        _SAFE_DIVISION,
+        _SAFE_LOG,
         (   # exp
             lambda in1, in2, in3: "exp({})".format(in1),
             lambda in1, in2, in3: (
@@ -169,3 +173,8 @@ class OpSets:
             lambda in1, in2, in3: np.where(in1 > 0, in2, in3)
         ),
     ]
+
+    OPSET_DICT = {
+        IMPROBED_2022_OPSET_KEY: _IMPROBED_2022,
+        GPTP_II_OPSET_KEY: _GPTP_II
+    }

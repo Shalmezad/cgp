@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import random
 from .gene import Gene
+from .op_sets import OpSets
 
 
 @dataclass
@@ -15,6 +16,7 @@ class GeneMutator:
     def mutateGene(self, g: Gene) -> Gene:
         num_inputs = g.num_inputs
         middlenodes = []
+        ops = OpSets.OPSET_DICT[g.opset_key]
         for idx, middlenode in enumerate(g.middlenodes):
             maxIdx = num_inputs + idx
             in1idx, in2idx, in3idx, op = middlenode
@@ -25,7 +27,7 @@ class GeneMutator:
             if random.random() < self.config.mutation_rate:
                 in3idx = random.randrange(maxIdx)
             if random.random() < self.config.mutation_rate:
-                op = random.randrange(len(g.ops))
+                op = random.randrange(len(ops))
             middlenodes.append((in1idx, in2idx, in3idx, op))
         output_idxes = []
         for idx in g.output_idxes:
@@ -34,4 +36,4 @@ class GeneMutator:
                 output_idxes.append(random.randrange(output_idx_range))
             else:
                 output_idxes.append(idx)
-        return Gene(num_inputs, middlenodes, output_idxes, g.ops)
+        return Gene(num_inputs, middlenodes, output_idxes, g.opset_key)
