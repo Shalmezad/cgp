@@ -24,11 +24,11 @@ def brainFitness(brain: Brain,
                  problems: list[ProblemBase]) -> float:
     newBrain: Brain = brain
     for e in range(config.num_steps_pre_epoch):
-        logging.debug("\tPre epoch: {}".format(e))
+        logging.debug("\tBrain#{} Pre epoch: {}".format(id(brain), e))
         newBrain = newBrain.update(True)
     tf_prev = 1000000000
     for e in range(config.num_epochs):
-        logging.debug("\tEpoch: {}".format(e))
+        logging.debug("\tBrain#{} Epoch: {}".format(id(brain), e))
         for _ in range(config.num_steps_during_epoch):
             newBrain = newBrain.update(False)
         tf = 0
@@ -39,9 +39,11 @@ def brainFitness(brain: Brain,
             actual_out = ann.forward(training_in)
             fitness = problem.measureFitness(expected_out, actual_out)
             tf = tf + fitness / len(problems)
-        logging.debug("\t\ttf: {}".format(tf))
+        logging.debug("\t\tBrain#{} tf: {}".format(id(brain), tf))
         if tf >= tf_prev:
-            logging.debug("\tBailing early, fitness did not improve")
+            logging.debug(
+                "\tBrain#{} Bailing early, fitness did not improve".format(
+                    id(brain)))
             return tf_prev
         else:
             tf_prev = tf
