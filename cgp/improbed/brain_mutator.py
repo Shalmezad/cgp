@@ -1,6 +1,6 @@
 import random
 
-from cgp.gene import PointMutator, PointMutatorConfig
+from cgp.gene import GoldmanMutator
 from .brain import Brain
 from .config import Config
 from .dendrite import Dendrite
@@ -10,14 +10,8 @@ from .point2d import Point2d
 
 class BrainMutator:
     def __init__(self, config: Config) -> None:
-        soma_mutator_config = PointMutatorConfig(
-            0.08
-        )
-        self.soma_mutator = PointMutator(soma_mutator_config)
-        dendrite_mutator_config = PointMutatorConfig(
-            0.08
-        )
-        self.dendrite_mutator = PointMutator(dendrite_mutator_config)
+        self.soma_mutator = GoldmanMutator()
+        self.dendrite_mutator = GoldmanMutator()
         self.config = config
 
     def mutate_brain(self, b: Brain) -> Brain:
