@@ -32,7 +32,7 @@ class IrisProblem(ProblemBase):
 
         if normalizeInputs:
             # Need to normalize:
-            max_input = [0, 0, 0, 0]
+            max_input = [0.0, 0.0, 0.0, 0.0]
             for i, o in self._data:
                 for idx in range(4):
                     if i[idx] > max_input[idx]:

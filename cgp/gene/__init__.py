@@ -1,11 +1,11 @@
 from .gene import Gene
 from .gene_builder import GeneBuilder, GeneBuilderConfig
-from .gene_mutator import GeneMutator, GeneMutatorConfig
+from .point_mutator import PointMutator, PointMutatorConfig
 from .op_sets import OpSets
 
 __all__ = ['Gene',
            'GeneBuilder',
            'GeneBuilderConfig',
-           'GeneMutator',
-           'GeneMutatorConfig',
+           'PointMutator',
+           'PointMutatorConfig',
            'OpSets']

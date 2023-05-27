@@ -1,16 +1,17 @@
 from dataclasses import dataclass
 import random
 from .gene import Gene
+from .gene_mutator_base import GeneMutatorBase
 from .op_sets import OpSets
 
 
 @dataclass
-class GeneMutatorConfig:
+class PointMutatorConfig:
     mutation_rate: float
 
 
-class GeneMutator:
-    def __init__(self, config: GeneMutatorConfig) -> None:
+class PointMutator(GeneMutatorBase):
+    def __init__(self, config: PointMutatorConfig) -> None:
         self.config = config
 
     def mutateGene(self, g: Gene) -> Gene:

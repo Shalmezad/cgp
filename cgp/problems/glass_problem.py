@@ -30,7 +30,7 @@ class GlassProblem(ProblemBase):
 
         # Need to normalize:
         if normalizeInputs:
-            max_input = [0] * 9
+            max_input = [0.0] * 9
             for i, o in self._data:
                 for idx in range(9):
                     if i[idx] > max_input[idx]:
