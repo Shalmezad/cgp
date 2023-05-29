@@ -125,20 +125,31 @@ class Brain(JSONMixin):
             self.config.soma_health_increment_pre
             if isPre
             else self.config.soma_health_increment_while)
-        positionIncrement = (
+        positionXIncrement = (
             self.config.soma_position_increment_pre
             if isPre
             else self.config.soma_position_increment_while)
+        positionYIncrement = positionXIncrement
         biasIncrement = (
             self.config.soma_bias_increment_pre
             if isPre
             else self.config.soma_bias_increment_while)
+
+        # Right now, we have the raw value
+        # If it's sigmoid though:
+        if (self.config.increment_option ==
+                Config.NeuralValueIncrement.SIGMOID):
+            healthIncrement = healthIncrement * MathUtil.sig(health)
+            positionXIncrement = positionXIncrement * MathUtil.sig(positionX)
+            positionYIncrement = positionYIncrement * MathUtil.sig(positionY)
+            biasIncrement = biasIncrement * MathUtil.sig(health)
+
         # Apply the increment
         health = parentHealth + MathUtil.sign(health) * healthIncrement
         positionX = parentPositionX + (
-            MathUtil.sign(positionX) * positionIncrement)
+            MathUtil.sign(positionX) * positionXIncrement)
         positionY = parentPositionY + (
-            MathUtil.sign(positionY) * positionIncrement)
+            MathUtil.sign(positionY) * positionYIncrement)
         bias = parentBias + MathUtil.sign(bias) * biasIncrement
         health = MathUtil.clamp(health, -1.0, 1.0)
         positionX = MathUtil.clamp(positionX, -1.0, 1.0)

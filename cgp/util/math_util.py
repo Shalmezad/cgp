@@ -1,3 +1,6 @@
+import math
+
+
 class MathUtil:
     @staticmethod
     def clamp(val: float, min_val: float, max_val: float) -> float:
@@ -11,3 +14,7 @@ class MathUtil:
             return -1.0
         else:
             return 0.0
+
+    @staticmethod
+    def sig(val: float) -> float:
+        return 1.0 / (1.0 + math.exp(-val))

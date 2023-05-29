@@ -39,7 +39,6 @@ class OpSets:
             np.absolute(in1), out=np.zeros_like(in1), where=in1 != 0)
     )
 
-
     # IMPROBED: Multiple Problem-Solving Brian
     #   via Evolved Developmental Programs
     # Julian Francis Miller

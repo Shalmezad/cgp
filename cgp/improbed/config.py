@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 
 
 @dataclass(frozen=True)
@@ -64,3 +65,10 @@ class Config:
 
     # N_ep
     num_epochs: int = 8
+
+    # Increment option:
+    class NeuralValueIncrement(Enum):
+        RAW_VALUE = 'RAW_VALUE'
+        SIGMOID = 'SIGMOID'
+
+    increment_option: NeuralValueIncrement = NeuralValueIncrement.SIGMOID
