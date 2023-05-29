@@ -1,3 +1,4 @@
 cli-ui
 numpy
 openml
+fastclasses-json

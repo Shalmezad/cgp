@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
+from fastclasses_json import dataclass_json, JSONMixin
 import numpy as np
 import numpy.typing as npt
 
@@ -13,8 +14,9 @@ from .neuron import Neuron
 from .point2d import Point2d
 
 
+@dataclass_json
 @dataclass(frozen=True)
-class Brain:
+class Brain(JSONMixin):
     # The program for updating soma
     somaProgram: Gene
     # The program for updating dendrites
