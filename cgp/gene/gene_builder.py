@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import random
 
 from .gene import Gene
-from .op_sets import OpSets
+from .op_sets import OpSets, OpsetKey
 
 
 @dataclass
@@ -10,7 +10,7 @@ class GeneBuilderConfig:
     num_inputs: int
     num_middlenodes: int
     num_outputs: int
-    opset_key: OpSets.OpsetKey
+    opset_key: OpsetKey
 
 
 class GeneBuilder:

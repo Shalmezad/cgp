@@ -1,11 +1,17 @@
+from enum import Enum
 import math
+from typing import Callable
+
 import numpy as np
 import numpy.typing as npt
-from typing import Callable, NewType
+
+
+class OpsetKey(Enum):
+    IMPROBED_2022_OPSET_KEY = 'IMPROBED_2022_OPSET_KEY'
+    GPTP_II_OPSET_KEY = 'GPTP_II_OPSET_KEY'
 
 
 class OpSets:
-    OpsetKey = NewType("OpsetKey", str)
     OpName = Callable[
         [
             str,
@@ -33,8 +39,6 @@ class OpSets:
             np.absolute(in1), out=np.zeros_like(in1), where=in1 != 0)
     )
 
-    IMPROBED_2022_OPSET_KEY: OpsetKey = OpsetKey("IMPROBED_2022_OPSET_KEY")
-    GPTP_II_OPSET_KEY: OpsetKey = OpsetKey("GPTP_II_OPSET_KEY")
 
     # IMPROBED: Multiple Problem-Solving Brian
     #   via Evolved Developmental Programs
@@ -175,6 +179,6 @@ class OpSets:
     ]
 
     OPSET_DICT = {
-        IMPROBED_2022_OPSET_KEY: _IMPROBED_2022,
-        GPTP_II_OPSET_KEY: _GPTP_II
+        OpsetKey.IMPROBED_2022_OPSET_KEY: _IMPROBED_2022,
+        OpsetKey.GPTP_II_OPSET_KEY: _GPTP_II
     }

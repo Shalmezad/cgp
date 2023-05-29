@@ -2,7 +2,7 @@ from .gene import Gene
 from .gene_builder import GeneBuilder, GeneBuilderConfig
 from .goldman_mutator import GoldmanMutator
 from .point_mutator import PointMutator, PointMutatorConfig
-from .op_sets import OpSets
+from .op_sets import OpsetKey, OpSets
 
 __all__ = ['Gene',
            'GeneBuilder',
@@ -10,4 +10,5 @@ __all__ = ['Gene',
            'GoldmanMutator',
            'PointMutator',
            'PointMutatorConfig',
+           'OpsetKey',
            'OpSets']

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 import numpy.typing as npt
 
-from .op_sets import OpSets
+from .op_sets import OpSets, OpsetKey
 
 
 @dataclass(frozen=True)
@@ -11,7 +11,7 @@ class Gene:
     num_inputs: int
     middlenodes: list[tuple[int, int, int, int]]
     output_idxes: list[int]
-    opset_key: OpSets.OpsetKey
+    opset_key: OpsetKey
 
     def evaluate(
             self,

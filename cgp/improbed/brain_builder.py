@@ -1,6 +1,6 @@
 import random
 
-from cgp.gene import GeneBuilder, GeneBuilderConfig, OpSets
+from cgp.gene import GeneBuilder, GeneBuilderConfig, OpsetKey
 from .brain import Brain
 from .config import Config
 from .dendrite import Dendrite
@@ -10,7 +10,7 @@ from .point2d import Point2d
 
 class BrainBuilder:
     def __init__(self, config: Config) -> None:
-        op_set_key = OpSets.IMPROBED_2022_OPSET_KEY
+        op_set_key = OpsetKey.IMPROBED_2022_OPSET_KEY
         soma_builder_config = GeneBuilderConfig(
             9,
             200,
