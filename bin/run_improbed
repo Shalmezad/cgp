@@ -8,6 +8,9 @@ import sys
 from cgp.improbed import Brain, BrainBuilder, BrainMutator, Config
 from cgp.problems import IrisProblem, GlassProblem, ProblemBase
 
+USING_REDIS = True
+if USING_REDIS:
+    import redis
 
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
@@ -18,6 +21,10 @@ formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 root.addHandler(handler)
+
+
+def getRedis():
+    return redis.Redis(host='redis', port=6379, decode_responses=True)
 
 
 def brainFitness(brain: Brain,
@@ -97,6 +104,10 @@ with Pool() as pool:
 bestIdx = fitnesses.index(min(fitnesses))
 parent = individuals[bestIdx]
 
+if USING_REDIS:
+    r = getRedis()
+    r.set("bestBrain", parent.to_json())
+
 for generation in range(500):
     logging.info("Generation: {}".format(generation))
     # Make the offspring:
@@ -121,6 +132,10 @@ for generation in range(500):
 
     if bestOffspringFitness <= parent_fitness:
         parent = offspring[bestOffspringIdx]
+
+    if USING_REDIS:
+        r = getRedis()
+        r.set("bestBrain", parent.to_json())
 
     new_parent_fitness = brainFitness(parent, config, problems)
     logging.info("\tFitness: {}".format(new_parent_fitness))

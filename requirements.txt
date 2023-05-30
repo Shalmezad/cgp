@@ -1,4 +1,5 @@
 cli-ui
 numpy
 openml
+redis
 fastclasses-json

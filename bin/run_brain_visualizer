@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+
+import json
+
+import pygame
+import redis
+
+def getBrain():
+    # f = open("bin/scratch_brain.json", "r")
+    # b = f.read()
+    # f.close() 
+    r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    b = r.get("bestBrain")
+    return json.loads(b)
+
+def drawDendrite(screen, neuron, dendrite):
+    pos_n_raw = neuron['position']
+    pos_d_raw = dendrite['position']
+    if pos_d_raw['x'] > pos_n_raw['x']:
+        delta = pos_d_raw['x'] - pos_n_raw['x']
+        pos_d_raw['x'] = pos_n_raw['x'] - delta
+
+    pos1 = pygame.Vector2(
+        (pos_n_raw['x'] + 1.0) * screen.get_width() / 2, 
+        (pos_n_raw['y'] + 1.0) * screen.get_height() / 2)
+    pos2 = pygame.Vector2(
+        (pos_d_raw['x'] + 1.0) * screen.get_width() / 2, 
+        (pos_d_raw['y'] + 1.0) * screen.get_height() / 2)
+
+    colors = ["black", "blue", "green", "cyan", "orange", "yellow"]
+    color = colors[neuron['out']]
+    pygame.draw.line(screen, color, pos1, pos2)
+
+
+def drawNeuron(screen, neuron):
+    pos_raw = neuron['position']
+    pos = pygame.Vector2(
+        (pos_raw['x'] + 1.0) * screen.get_width() / 2, 
+        (pos_raw['y'] + 1.0) * screen.get_height() / 2)
+
+    colors = ["black", "blue", "green", "cyan", "orange", "yellow"]
+    color = colors[neuron['out']]
+    pygame.draw.circle(screen, color, pos, 4)
+    for dendrite in neuron['dendrites']:
+        drawDendrite(screen, neuron, dendrite)
+
+def drawBrain(screen, brain):
+    for neuron in brain['neurons']:
+        drawNeuron(screen, neuron)
+    for il in brain['inputLocations']:
+        pos = pygame.Vector2(
+            (il['x'] + 1.0) * screen.get_width() / 2, 
+            (il['y'] + 1.0) * screen.get_height() / 2)
+        pygame.draw.circle(screen, 'red', pos, 4)
+    
+
+def main():
+    # print(getBrain())
+    # exit()
+    # pygame setup
+    pygame.init()
+    screen = pygame.display.set_mode((500, 500))
+    clock = pygame.time.Clock()
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        screen.fill("white")
+
+        # Grab the brain from redis:
+        brain = getBrain()
+        drawBrain(screen, brain)
+
+        # flip() the display to put your work on screen
+        pygame.display.flip()
+        clock.tick(60)  # limits FPS to 60
+
+    pygame.quit()
+
+main()
